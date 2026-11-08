@@ -1,6 +1,6 @@
 RotaSeca - Domain Driven Design (Java) - GS 2026.2
 
-Link do projeto no GitHub: https://github.com/SEU-USUARIO/rotaseca
+Link do projeto no GitHub: https://github.com/PauloCesar-hub/GS-java
 Link do deploy (Render):   https://rotaseca-api.onrender.com
   - Pagina web: https://rotaseca-api.onrender.com/
   - API:        https://rotaseca-api.onrender.com/api
