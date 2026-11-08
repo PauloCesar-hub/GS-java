@@ -48,7 +48,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PersistenciaException.class)
     public ResponseEntity<ErroResponse> persistencia(PersistenciaException e, HttpServletRequest req) {
         LOG.error("Erro de banco de dados em {}", req.getRequestURI(), e);
-        return montar(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao acessar o banco de dados", req, List.of());
+        return montar(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao acessar o banco de dados", req, causasBanco(e));
+    }
+
+    /**
+     * Primeira linha de cada causa (ex.: "ORA-00942: table or view does not exist") para facilitar o
+     * diagnostico no deploy. Mensagens do driver nao contem senha nem dados dos registros.
+     */
+    static List<String> causasBanco(Throwable e) {
+        List<String> causas = new java.util.ArrayList<>();
+        for (Throwable t = e.getCause(); t != null && causas.size() < 4; t = t.getCause()) {
+            String msg = t.getMessage();
+            if (msg != null && !msg.isBlank()) {
+                String linha = msg.lines().findFirst().orElse("").trim();
+                if (!causas.contains(linha)) {
+                    causas.add(linha);
+                }
+            }
+            if (t.getCause() == t) {
+                break;
+            }
+        }
+        return causas;
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
