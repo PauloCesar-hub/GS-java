@@ -3,71 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a2e4a">
 <title>RotaSeca - alagamentos no seu caminho</title>
 <style>
   :root {
-    --azul: #0b3c5d; --azul-claro: #e6f0f7; --texto: #1b1b1b; --cinza: #5b6670; --fundo: #f4f6f8;
-    --normal: #1e7b34; --atencao: #8a6d00; --alerta: #b45309; --emergencia: #b3261e; --semdados: #5b6670;
+    --marinho: #0a2e4a; --azul: #0f4c75; --agua: #1b8fc4; --agua-clara: #e3f2fa;
+    --texto: #16212b; --cinza: #5a6874; --linha: #e1e7ec; --fundo: #f2f5f8; --branco: #fff;
+    --normal: #1e7b34; --normal-bg: #e4f4e8;
+    --atencao: #8a6d00; --atencao-bg: #fdf4d3;
+    --alerta: #b45309; --alerta-bg: #fdebd8;
+    --emergencia: #b3261e; --emergencia-bg: #fbe4e2;
+    --semdados: #5a6874; --semdados-bg: #eceff2;
+    --sombra: 0 1px 2px rgba(16, 33, 48, .06), 0 4px 14px rgba(16, 33, 48, .06);
+    --raio: 16px;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 18px;
-         color: var(--texto); background: var(--fundo); line-height: 1.45; }
-  header { background: var(--azul); color: #fff; padding: 16px 18px 12px; }
-  header h1 { margin: 0; font-size: 1.35rem; letter-spacing: .2px; }
-  header p { margin: 2px 0 0; font-size: .9rem; opacity: .9; }
-  main { max-width: 520px; margin: 0 auto; padding: 14px 14px 96px; }
-  nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #d5dbe0;
-        display: flex; justify-content: center; }
-  nav div { display: flex; width: 100%; max-width: 520px; }
-  nav button { flex: 1; border: 0; background: none; padding: 10px 4px 12px; font-size: .85rem; color: var(--cinza);
-               cursor: pointer; font-weight: 600; }
-  nav button span { display: block; font-size: 1.4rem; line-height: 1.2; }
-  nav button[aria-current="page"] { color: var(--azul); box-shadow: inset 0 3px 0 var(--azul); }
-  h2 { font-size: 1.15rem; margin: 6px 0 12px; }
-  .card { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid #dde3e8; }
-  .ponto { border-left: 8px solid var(--semdados); }
-  .ponto h3 { margin: 0 0 2px; font-size: 1.05rem; }
-  .ref { color: var(--cinza); font-size: .9rem; margin: 0 0 8px; }
-  .selo { display: inline-block; font-weight: 700; font-size: .85rem; padding: 3px 10px; border-radius: 999px; color: #fff; }
-  .NORMAL { border-left-color: var(--normal); } .selo.NORMAL { background: var(--normal); }
-  .ATENCAO { border-left-color: var(--atencao); } .selo.ATENCAO { background: var(--atencao); }
-  .ALERTA { border-left-color: var(--alerta); } .selo.ALERTA { background: var(--alerta); }
-  .EMERGENCIA { border-left-color: var(--emergencia); } .selo.EMERGENCIA { background: var(--emergencia); }
-  .SEM_DADOS { border-left-color: var(--semdados); } .selo.SEM_DADOS { background: var(--semdados); }
-  .linha { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .msg { margin: 8px 0 0; font-size: .95rem; }
-  .resumo { background: var(--azul-claro); border: 0; }
-  .resumo strong { font-size: 1.6rem; display: block; }
-  label { display: block; font-weight: 600; margin: 12px 0 4px; }
-  select, input, textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid #9aa5ae; border-radius: 10px;
-                            background: #fff; font-family: inherit; }
-  textarea { min-height: 84px; resize: vertical; }
-  .niveis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .niveis button { padding: 12px 8px; border: 2px solid #c5ced5; background: #fff; border-radius: 10px; font-size: .95rem;
-                   cursor: pointer; text-align: left; font-family: inherit; }
-  .niveis button[aria-pressed="true"] { border-color: var(--azul); background: var(--azul-claro); font-weight: 700; }
-  .primario { width: 100%; margin-top: 16px; padding: 15px; font-size: 1.05rem; font-weight: 700; border: 0; border-radius: 12px;
-              background: var(--azul); color: #fff; cursor: pointer; }
-  .aviso { padding: 12px 14px; border-radius: 10px; margin-top: 12px; font-weight: 600; }
-  .aviso.ok { background: #e3f4e7; color: #134d22; } .aviso.erro { background: #fbe4e2; color: #7a1a14; }
-  .vazio { color: var(--cinza); text-align: center; padding: 20px 8px; }
-  .tag { font-size: .8rem; color: var(--cinza); }
+  body { margin: 0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 17px;
+         color: var(--texto); background: var(--fundo); line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; }
+
+  /* ---------- topo ---------- */
+  header { position: relative; overflow: hidden; color: #fff; padding: 22px 18px 64px;
+           background: linear-gradient(160deg, var(--marinho) 0%, var(--azul) 60%, #13699c 100%); }
+  header .topo { max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  header h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.3px; display: flex; align-items: center; gap: 8px; }
+  header h1 svg { width: 30px; height: 30px; }
+  header p { margin: 4px 0 0; font-size: .92rem; opacity: .85; }
+  .ao-vivo { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; background: rgba(255,255,255,.12);
+             padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+  .ao-vivo i { width: 8px; height: 8px; border-radius: 50%; background: #5fe08a; box-shadow: 0 0 0 0 rgba(95,224,138,.7); animation: pulso 2s infinite; }
+  @keyframes pulso { 0% { box-shadow: 0 0 0 0 rgba(95,224,138,.6); } 70% { box-shadow: 0 0 0 8px rgba(95,224,138,0); } 100% { box-shadow: 0 0 0 0 rgba(95,224,138,0); } }
+  .ondas { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 40px; }
+
+  main { max-width: 960px; margin: -44px auto 0; padding: 0 14px 104px; position: relative; }
+  h2 { font-size: 1.12rem; margin: 26px 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  h2 small { font-size: .8rem; font-weight: 500; color: var(--cinza); }
+  .card { background: var(--branco); border-radius: var(--raio); padding: 16px; margin-bottom: 12px; border: 1px solid var(--linha); box-shadow: var(--sombra); }
+  .tag { font-size: .82rem; color: var(--cinza); }
+  .vazio { color: var(--cinza); text-align: center; padding: 22px 8px; }
   [hidden] { display: none !important; }
+
+  /* ---------- resumo ---------- */
+  .resumo { display: grid; gap: 14px; }
+  .manchete { display: flex; align-items: center; gap: 14px; }
+  .manchete .icone { flex: 0 0 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 1.6rem; }
+  .manchete strong { display: block; font-size: 1.25rem; line-height: 1.2; }
+  .manchete span { color: var(--cinza); font-size: .92rem; }
+  .contadores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .contador { border-radius: 12px; padding: 10px 8px; text-align: center; }
+  .contador b { display: block; font-size: 1.5rem; line-height: 1.1; }
+  .contador span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .74rem; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+
+  /* ---------- grade principal ---------- */
+  .grade { display: grid; gap: 0 18px; }
+  .grade > div { min-width: 0; }
+  @media (max-width: 420px) { .contador span { font-size: .62rem; letter-spacing: 0; } .contador b { font-size: 1.3rem; } }
+  @media (min-width: 860px) { .grade { grid-template-columns: 1.15fr 1fr; align-items: start; } }
+  @media (max-width: 859px) { .grade > .col-avisos { order: -1; } }
+
+  /* ---------- mapa ---------- */
+  .mapa { padding: 0; overflow: hidden; }
+  .mapa svg { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #eaf4fa, #f6fafc); }
+  .mapa .ponto-mapa { cursor: pointer; }
+  .mapa .ponto-mapa:hover circle.nucleo, .mapa .ponto-mapa:focus circle.nucleo { stroke-width: 3; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 14px; font-size: .78rem; color: var(--cinza); border-top: 1px solid var(--linha); }
+  .legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+  /* ---------- pontos ---------- */
+  .ponto { position: relative; padding-left: 20px; scroll-margin-top: 16px; transition: box-shadow .3s; }
+  .ponto::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; border-radius: var(--raio) 0 0 var(--raio); background: var(--cor); }
+  .ponto.realce { box-shadow: 0 0 0 3px var(--agua); }
+  .ponto h3 { margin: 0; font-size: 1.04rem; }
+  .ref { color: var(--cinza); font-size: .88rem; margin: 2px 0 0; }
+  .linha { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .selo { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; font-size: .78rem; padding: 4px 10px; border-radius: 999px;
+          color: var(--cor); background: var(--bg); white-space: nowrap; }
+  .dica { margin: 10px 0 0; font-weight: 600; font-size: .95rem; }
+  .NORMAL { --cor: var(--normal); --bg: var(--normal-bg); }
+  .ATENCAO { --cor: var(--atencao); --bg: var(--atencao-bg); }
+  .ALERTA { --cor: var(--alerta); --bg: var(--alerta-bg); }
+  .EMERGENCIA { --cor: var(--emergencia); --bg: var(--emergencia-bg); }
+  .SEM_DADOS { --cor: var(--semdados); --bg: var(--semdados-bg); }
+
+  /* régua de nível */
+  .regua { margin-top: 12px; }
+  .regua .trilho { position: relative; height: 12px; border-radius: 999px; background: #edf1f4; overflow: hidden; }
+  .regua .agua { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, #4fb3e0, var(--cor)); transition: width .8s ease; }
+  .regua .marca { position: absolute; top: -3px; bottom: -3px; width: 2px; background: rgba(22,33,43,.35); }
+  .regua .rotulos { position: relative; height: 16px; font-size: .7rem; color: var(--cinza); margin-top: 3px; }
+  .regua .rotulos span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: .82rem; color: var(--cinza); }
+  .meta b { color: var(--texto); }
+
+  /* ---------- feed de avisos ---------- */
+  .filtros { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 10px; }
+  .filtros button { border: 1px solid var(--linha); background: var(--branco); color: var(--cinza); padding: 7px 12px; border-radius: 999px;
+                    font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .filtros button[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .aviso-item { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 14px; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; font-size: .95rem; }
+  .aviso-item h4 { margin: 0; font-size: .95rem; }
+  .aviso-item .onde { font-size: .85rem; color: var(--cinza); margin: 1px 0 6px; }
+  .aviso-item blockquote { margin: 6px 0 0; padding: 8px 10px; background: var(--fundo); border-radius: 10px; font-size: .9rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip { font-size: .74rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .chip.altura { background: var(--agua-clara); color: #0b5f86; }
+  .st-ABERTA { background: #fff3cd; color: #7a5a00; }
+  .st-CONFIRMADA { background: var(--emergencia-bg); color: var(--emergencia); }
+  .st-RESOLVIDA { background: var(--normal-bg); color: var(--normal); }
+  .st-DESCARTADA { background: var(--semdados-bg); color: var(--semdados); }
+  .acoes { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .acoes button { border: 1px solid var(--linha); background: var(--branco); padding: 7px 12px; border-radius: 10px; font-size: .82rem; font-weight: 600; cursor: pointer; }
+  .acoes button.confirmar { background: var(--azul); color: #fff; border-color: var(--azul); }
+  .acoes button:disabled { opacity: .5; cursor: wait; }
+  .novo { animation: chegou 1.6s ease; }
+  @keyframes chegou { 0% { background: var(--agua-clara); } 100% { background: var(--branco); } }
+  .mais { width: 100%; border: 1px dashed #b9c4cc; background: transparent; color: var(--azul); padding: 11px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+
+  /* ---------- formulário ---------- */
+  label { display: block; font-weight: 600; margin: 14px 0 6px; }
+  select, textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid #b4bfc8; border-radius: 12px; background: #fff; font-family: inherit; color: inherit; }
+  select:focus, textarea:focus, button:focus-visible { outline: 3px solid rgba(27,143,196,.45); outline-offset: 1px; }
+  textarea { min-height: 88px; resize: vertical; }
+  .niveis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .niveis button { position: relative; padding: 12px 12px 12px 54px; border: 2px solid var(--linha); background: #fff; border-radius: 12px; font-size: .92rem;
+                   cursor: pointer; text-align: left; min-height: 58px; }
+  .niveis button svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; }
+  .niveis button small { display: block; color: var(--cinza); font-size: .75rem; }
+  .niveis button[aria-pressed="true"] { border-color: var(--agua); background: var(--agua-clara); font-weight: 700; }
+  .primario { width: 100%; margin-top: 18px; padding: 15px; font-size: 1.05rem; font-weight: 700; border: 0; border-radius: 14px;
+              background: linear-gradient(135deg, var(--azul), var(--agua)); color: #fff; cursor: pointer; box-shadow: 0 6px 16px rgba(15,76,117,.25); }
+  .msg-retorno { padding: 12px 14px; border-radius: 12px; margin-top: 12px; font-weight: 600; }
+  .msg-retorno.ok { background: var(--normal-bg); color: #134d22; } .msg-retorno.erro { background: var(--emergencia-bg); color: #7a1a14; }
+
+  /* ---------- abrigos ---------- */
+  .abrigo { display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: start; }
+  .abrigo .ic { width: 48px; height: 48px; border-radius: 12px; background: var(--agua-clara); display: grid; place-items: center; font-size: 1.4rem; }
+  .abrigo h3 { margin: 0; font-size: 1rem; }
+  .capacidade { height: 6px; background: #edf1f4; border-radius: 999px; margin-top: 8px; overflow: hidden; }
+  .capacidade div { height: 100%; background: var(--agua); }
+
+  /* ---------- menu inferior ---------- */
+  nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,.96); backdrop-filter: blur(8px);
+        border-top: 1px solid var(--linha); display: flex; justify-content: center; z-index: 10; }
+  nav div { display: flex; width: 100%; max-width: 560px; }
+  nav button { flex: 1; border: 0; background: none; padding: 9px 4px 12px; font-size: .8rem; color: var(--cinza); cursor: pointer; font-weight: 600; position: relative; }
+  nav button svg { display: block; margin: 0 auto 2px; width: 24px; height: 24px; }
+  nav button[aria-current="page"] { color: var(--azul); }
+  nav button[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 28%; right: 28%; height: 3px; border-radius: 0 0 3px 3px; background: var(--azul); }
+  nav .badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+               background: var(--emergencia); color: #fff; font-size: .68rem; line-height: 18px; }
+
+  .skeleton { background: linear-gradient(90deg, #eef2f5 25%, #f7f9fb 50%, #eef2f5 75%); background-size: 200% 100%; animation: brilho 1.2s infinite; border-radius: 12px; height: 92px; margin-bottom: 12px; }
+  @keyframes brilho { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>RotaSeca</h1>
-  <p>Alagamentos no seu caminho &middot; Parque Novo Mundo e regi&atilde;o</p>
+  <div class="topo">
+    <div>
+      <h1>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5c3.5 4.4 6 7.9 6 11a6 6 0 1 1-12 0c0-3.1 2.5-6.6 6-11Z" fill="#7fd0f2"/><path d="M9 14.5a3 3 0 0 0 3 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        RotaSeca
+      </h1>
+      <p>Alagamentos no seu caminho &middot; Parque Novo Mundo e regi&atilde;o</p>
+    </div>
+    <span class="ao-vivo" title="Atualiza sozinho a cada 30 segundos"><i></i><span id="atualizado">ao vivo</span></span>
+  </div>
+  <svg class="ondas" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 22c120-14 240-14 360 0s240 14 360 0 240-14 360 0 240 14 360 0v18H0z" fill="#f2f5f8"/>
+  </svg>
 </header>
 
 <main>
+  <!-- ================= AGORA ================= -->
   <section id="tela-agora" aria-labelledby="t-agora">
-    <h2 id="t-agora">Como est&atilde;o as ruas agora</h2>
-    <div class="card resumo" id="resumo">Carregando...</div>
-    <div id="lista-pontos"></div>
+    <h1 id="t-agora" hidden>Como est&atilde;o as ruas agora</h1>
+    <div class="card resumo" id="resumo" aria-live="polite"><div class="skeleton" style="height:120px;margin:0"></div></div>
+
+    <div class="grade">
+      <div>
+        <h2>Ruas monitoradas <small id="qtd-pontos"></small></h2>
+        <div class="card mapa" id="mapa"></div>
+        <div id="lista-pontos"><div class="skeleton"></div><div class="skeleton"></div></div>
+      </div>
+      <div class="col-avisos">
+        <h2>Avisos dos moradores <small id="qtd-avisos"></small></h2>
+        <div class="filtros" role="group" aria-label="Filtrar avisos" id="filtros">
+          <button type="button" data-filtro="TODAS" aria-pressed="true">Todos</button>
+          <button type="button" data-filtro="ABERTA" aria-pressed="false">Aguardando</button>
+          <button type="button" data-filtro="CONFIRMADA" aria-pressed="false">Confirmados</button>
+          <button type="button" data-filtro="RESOLVIDA" aria-pressed="false">Resolvidos</button>
+        </div>
+        <div id="lista-avisos" aria-live="polite"><div class="skeleton"></div></div>
+      </div>
+    </div>
   </section>
 
+  <!-- ================= AVISAR ================= -->
   <section id="tela-relatar" aria-labelledby="t-relatar" hidden>
     <h2 id="t-relatar">Avisar sobre um alagamento</h2>
     <form id="form-relato" class="card" novalidate>
@@ -75,42 +209,44 @@
       <select id="cidadao" required></select>
       <label for="ponto">Onde est&aacute; alagado</label>
       <select id="ponto" required></select>
-      <span class="tag" id="ajuda-altura">Qual a altura da &aacute;gua?</span>
-      <div class="niveis" role="group" aria-labelledby="ajuda-altura" id="niveis">
-        <button type="button" data-cm="5" aria-pressed="false">Po&ccedil;a (at&eacute; o tornozelo)</button>
-        <button type="button" data-cm="20" aria-pressed="false">Canela</button>
-        <button type="button" data-cm="45" aria-pressed="false">Joelho</button>
-        <button type="button" data-cm="70" aria-pressed="false">Acima do joelho</button>
-      </div>
-      <label for="descricao">O que voc&ecirc; est&aacute; vendo? (opcional)</label>
+      <label id="ajuda-altura">Qual a altura da &aacute;gua?</label>
+      <div class="niveis" role="group" aria-labelledby="ajuda-altura" id="niveis"></div>
+      <label for="descricao">O que voc&ecirc; est&aacute; vendo? <span class="tag">(opcional)</span></label>
       <textarea id="descricao" maxlength="300" placeholder="Ex.: rampa da UBS coberta de &aacute;gua"></textarea>
       <button class="primario" type="submit">Enviar aviso</button>
       <div id="retorno-relato" role="status" aria-live="polite"></div>
     </form>
   </section>
 
+  <!-- ================= ALERTAS ================= -->
   <section id="tela-alertas" aria-labelledby="t-alertas" hidden>
     <h2 id="t-alertas">Alertas ativos</h2>
     <div id="lista-alertas"></div>
   </section>
 
+  <!-- ================= APOIO ================= -->
   <section id="tela-apoio" aria-labelledby="t-apoio" hidden>
     <h2 id="t-apoio">Pontos de apoio</h2>
-    <p class="tag">Locais para esperar a chuva passar com seguran&ccedil;a.</p>
+    <p class="tag" style="margin-top:-6px">Locais para esperar a chuva passar com seguran&ccedil;a.</p>
     <div id="lista-abrigos"></div>
   </section>
 </main>
 
 <nav aria-label="Menu principal"><div>
-  <button data-tela="agora" aria-current="page"><span aria-hidden="true">&#9673;</span>Agora</button>
-  <button data-tela="relatar"><span aria-hidden="true">&#9998;</span>Avisar</button>
-  <button data-tela="alertas"><span aria-hidden="true">&#9888;</span>Alertas</button>
-  <button data-tela="apoio"><span aria-hidden="true">&#8962;</span>Apoio</button>
+  <button data-tela="agora" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Agora</button>
+  <button data-tela="relatar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Avisar</button>
+  <button data-tela="alertas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg>Alertas<span class="badge" id="badge-alertas" hidden></span></button>
+  <button data-tela="apoio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Apoio</button>
 </div></nav>
 
 <script>
   const API = "/api";
   const ROTULO = { NORMAL: "Normal", ATENCAO: "Atenção", ALERTA: "Alerta", EMERGENCIA: "Intransitável", SEM_DADOS: "Sem sensor" };
+  const ICONE = { NORMAL: "✓", ATENCAO: "!", ALERTA: "⚠", EMERGENCIA: "⛔", SEM_DADOS: "?" };
   const DICA = {
     NORMAL: "Pode passar normalmente.",
     ATENCAO: "Água acumulando. Cuidado ao passar.",
@@ -118,11 +254,31 @@
     EMERGENCIA: "Não atravesse. Use outro caminho.",
     SEM_DADOS: "Ainda sem sensor. Veja os avisos dos vizinhos."
   };
-  let pontos = [];
-  let alturaEscolhida = null;
+  const STATUS = { ABERTA: "Aguardando confirmação", CONFIRMADA: "Confirmado", RESOLVIDA: "Resolvido", DESCARTADA: "Descartado" };
+  const NIVEIS = [
+    { cm: 5, nome: "Poça", sub: "até o tornozelo" },
+    { cm: 20, nome: "Canela", sub: "cerca de 20 cm" },
+    { cm: 45, nome: "Joelho", sub: "cerca de 45 cm" },
+    { cm: 70, nome: "Acima do joelho", sub: "70 cm ou mais" }
+  ];
+  const CORES_AVATAR = ["#0f4c75", "#1b8fc4", "#6a4c93", "#2a9d8f", "#c05621", "#8d5a97", "#3d5a80"];
 
+  let pontos = [], cidadaos = [], avisos = [], filtro = "TODAS", mostrarTodos = false, idsVistos = null, alturaEscolhida = null;
+
+  const $ = (id) => document.getElementById(id);
   const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const hora = (iso) => iso ? new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "-";
+  function haQuanto(iso) {
+    if (!iso) return "";
+    const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return "agora mesmo";
+    if (min < 60) return `há ${min} min`;
+    if (min < 1440) return `há ${Math.round(min / 60)} h`;
+    if (min < 2880) return "ontem";
+    return hora(iso);
+  }
+  const nomeAltura = (cm) => cm <= 10 ? "Poça" : cm <= 30 ? "Canela" : cm <= 55 ? "Joelho" : "Acima do joelho";
+  const iniciais = (n) => (n || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
 
   async function api(caminho, opcoes) {
     const resp = await fetch(API + caminho, opcoes);
@@ -134,104 +290,269 @@
     return corpo;
   }
 
+  /* ---------------- tela AGORA ---------------- */
   async function carregarAgora() {
     try {
-      pontos = await api("/pontos/situacao");
-      const criticos = pontos.filter((p) => p.situacao === "EMERGENCIA" || p.situacao === "ALERTA").length;
-      document.getElementById("resumo").innerHTML = criticos
-        ? `<strong>${criticos} trecho(s) para evitar</strong>Veja abaixo e escolha outro caminho.`
-        : `<strong>Nenhum trecho crítico</strong>${pontos.length} pontos acompanhados no bairro.`;
-      const ordem = { EMERGENCIA: 0, ALERTA: 1, ATENCAO: 2, SEM_DADOS: 3, NORMAL: 4 };
-      document.getElementById("lista-pontos").innerHTML = [...pontos]
-        .sort((a, b) => ordem[a.situacao] - ordem[b.situacao])
-        .map((p) => `
-          <article class="card ponto ${p.situacao}">
-            <div class="linha"><h3>${esc(p.nome)}</h3><span class="selo ${p.situacao}">${ROTULO[p.situacao]}</span></div>
-            <p class="ref">${esc(p.referencia)}</p>
-            <p class="msg"><strong>${DICA[p.situacao]}</strong></p>
-            <p class="tag">${p.ultimaAlturaCm != null ? `Última medição: ${p.ultimaAlturaCm} cm · ${hora(p.dataUltimaLeitura)}` : "Sem medição de sensor"}${p.ocorrenciasAbertas ? ` · ${p.ocorrenciasAbertas} aviso(s) de vizinhos` : ""}</p>
-          </article>`).join("");
-      document.getElementById("ponto").innerHTML = pontos.map((p) => `<option value="${p.idPonto}">${esc(p.nome)}</option>`).join("");
+      const [sit, ocs, cids] = await Promise.all([api("/pontos/situacao"), api("/ocorrencias"), api("/cidadaos")]);
+      pontos = sit; avisos = ocs; cidadaos = cids;
+      desenharResumo();
+      desenharMapa();
+      desenharPontos();
+      desenharAvisos();
+      preencherFormulario();
+      $("atualizado").textContent = "atualizado " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     } catch (e) {
-      document.getElementById("resumo").textContent = "Não foi possível carregar: " + e.message;
+      $("resumo").innerHTML = `<p class="msg-retorno erro" style="margin:0">Não foi possível carregar: ${esc(e.message)}</p>`;
     }
   }
 
-  async function carregarCidadaos() {
-    try {
-      const lista = await api("/cidadaos");
-      document.getElementById("cidadao").innerHTML = lista.map((c) => `<option value="${c.id}">${esc(c.nome)}</option>`).join("");
-    } catch (e) { /* tela de relato mostra o erro ao enviar */ }
+  function contar(sit) { return pontos.filter((p) => p.situacao === sit).length; }
+
+  function desenharResumo() {
+    const criticos = contar("EMERGENCIA") + contar("ALERTA");
+    const aguardando = avisos.filter((a) => a.status === "ABERTA").length;
+    const nivel = contar("EMERGENCIA") ? "EMERGENCIA" : contar("ALERTA") ? "ALERTA" : contar("ATENCAO") ? "ATENCAO" : "NORMAL";
+    const titulo = criticos ? `${criticos} ${criticos > 1 ? "trechos" : "trecho"} para evitar agora`
+      : contar("ATENCAO") ? "Água acumulando em alguns pontos" : "Ruas sem alagamento crítico";
+    const sub = criticos ? "Confira abaixo e escolha outro caminho." : `${pontos.length} pontos acompanhados por sensores e vizinhos.`;
+    $("resumo").innerHTML = `
+      <div class="manchete ${nivel}">
+        <div class="icone" style="background:var(--bg);color:var(--cor)" aria-hidden="true">${ICONE[nivel]}</div>
+        <div><strong>${titulo}</strong><span>${sub}${aguardando ? ` · ${aguardando} ${aguardando > 1 ? "avisos aguardando" : "aviso aguardando"} confirmação` : ""}</span></div>
+      </div>
+      <div class="contadores">
+        ${["EMERGENCIA", "ALERTA", "ATENCAO", "NORMAL"].map((s) => `
+          <div class="contador ${s}" style="background:var(--bg);color:var(--cor)"><b>${contar(s)}</b><span>${s === "EMERGENCIA" ? "Bloqueado" : ROTULO[s]}</span></div>`).join("")}
+      </div>`;
+    const ativos = contar("EMERGENCIA") + contar("ALERTA") + contar("ATENCAO");
+    $("badge-alertas").hidden = !ativos;
+    $("badge-alertas").textContent = ativos;
+    $("qtd-pontos").textContent = `${pontos.length} pontos`;
   }
 
+  function desenharMapa() {
+    if (!pontos.length) { $("mapa").hidden = true; return; }
+    const W = 600, H = 260, M = 36;
+    const lats = pontos.map((p) => p.latitude), lons = pontos.map((p) => p.longitude);
+    const [minLa, maxLa, minLo, maxLo] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
+    const x = (lo) => M + (maxLo === minLo ? .5 : (lo - minLo) / (maxLo - minLo)) * (W - 2 * M);
+    const y = (la) => M + (maxLa === minLa ? .5 : (maxLa - la) / (maxLa - minLa)) * (H - 2 * M);
+    const cor = { NORMAL: "#1e7b34", ATENCAO: "#c9a100", ALERTA: "#d9730d", EMERGENCIA: "#b3261e", SEM_DADOS: "#8a97a2" };
+    const ruas = Array.from({ length: 7 }, (_, i) => `<line x1="0" y1="${i * 44}" x2="${W}" y2="${i * 44 + 18}" stroke="#d6e6f0" stroke-width="${i % 3 ? 2 : 5}"/>`).join("")
+      + Array.from({ length: 9 }, (_, i) => `<line x1="${i * 76}" y1="0" x2="${i * 76 - 30}" y2="${H}" stroke="#d6e6f0" stroke-width="${i % 4 ? 2 : 5}"/>`).join("");
+    const rio = `<path d="M0 ${H - 34} C ${W * .25} ${H - 60}, ${W * .55} ${H - 6}, ${W} ${H - 40}" stroke="#9fd3ec" stroke-width="16" fill="none" opacity=".8"/>`;
+    const marcadores = [...pontos].sort((a, b) => ordem[b.situacao] - ordem[a.situacao]).map((p) => {
+      const pulsa = p.situacao === "EMERGENCIA" || p.situacao === "ALERTA";
+      return `<g class="ponto-mapa" tabindex="0" role="button" data-id="${p.idPonto}" aria-label="${esc(p.nome)}: ${ROTULO[p.situacao]}">
+        <title>${esc(p.nome)} — ${ROTULO[p.situacao]}</title>
+        ${pulsa ? `<circle cx="${x(p.longitude)}" cy="${y(p.latitude)}" r="10" fill="${cor[p.situacao]}" opacity=".35"><animate attributeName="r" values="10;24;10" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".4;0;.4" dur="2.2s" repeatCount="indefinite"/></circle>` : ""}
+        <circle class="nucleo" cx="${x(p.longitude)}" cy="${y(p.latitude)}" r="10" fill="${cor[p.situacao]}" stroke="#fff" stroke-width="2.5"/>
+        <text x="${x(p.longitude)}" y="${y(p.latitude) - 16}" text-anchor="${x(p.longitude) < 110 ? "start" : x(p.longitude) > W - 110 ? "end" : "middle"}" dx="${x(p.longitude) < 110 ? -12 : x(p.longitude) > W - 110 ? 12 : 0}" font-size="12" font-weight="600" fill="#16212b" paint-order="stroke" stroke="#fff" stroke-width="3">${esc(p.nome.length > 22 ? p.nome.slice(0, 21) + "…" : p.nome)}</text>
+      </g>`;
+    }).join("");
+    $("mapa").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa esquemático dos pontos monitorados">${ruas}${rio}${marcadores}</svg>
+      <div class="legenda">${Object.keys(cor).map((s) => `<span><i style="background:${cor[s]}"></i>${ROTULO[s]}</span>`).join("")}</div>`;
+    $("mapa").querySelectorAll(".ponto-mapa").forEach((g) => {
+      const ir = () => focarPonto(g.dataset.id);
+      g.addEventListener("click", ir);
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ir(); } });
+    });
+  }
+
+  function focarPonto(id) {
+    const el = $("ponto-" + id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("realce");
+    setTimeout(() => el.classList.remove("realce"), 1800);
+  }
+
+  const ordem = { EMERGENCIA: 0, ALERTA: 1, ATENCAO: 2, SEM_DADOS: 3, NORMAL: 4 };
+
+  function regua(p) {
+    if (p.ultimaAlturaCm == null) return "";
+    const max = Math.max(p.cotaCriticaCm * 1.4, p.ultimaAlturaCm * 1.05);
+    const pct = (v) => Math.min(100, (v / max) * 100).toFixed(1);
+    return `<div class="regua" aria-label="Água a ${p.ultimaAlturaCm} centímetros; atenção a partir de ${p.cotaAtencaoCm}, crítico a partir de ${p.cotaCriticaCm}">
+      <div class="trilho"><div class="agua" style="width:${pct(p.ultimaAlturaCm)}%"></div>
+        <span class="marca" style="left:${pct(p.cotaAtencaoCm)}%"></span><span class="marca" style="left:${pct(p.cotaCriticaCm)}%"></span></div>
+      <div class="rotulos" aria-hidden="true"><span style="left:${pct(p.cotaAtencaoCm)}%">atenção ${p.cotaAtencaoCm}</span><span style="left:${pct(p.cotaCriticaCm)}%">crítico ${p.cotaCriticaCm}</span></div>
+    </div>`;
+  }
+
+  function desenharPontos() {
+    $("lista-pontos").innerHTML = [...pontos].sort((a, b) => ordem[a.situacao] - ordem[b.situacao]).map((p) => `
+      <article class="card ponto ${p.situacao}" id="ponto-${p.idPonto}">
+        <div class="linha">
+          <div><h3>${esc(p.nome)}</h3><p class="ref">${esc(p.referencia)}</p></div>
+          <span class="selo">${ICONE[p.situacao]} ${ROTULO[p.situacao]}</span>
+        </div>
+        <p class="dica" style="color:var(--cor)">${DICA[p.situacao]}</p>
+        ${regua(p)}
+        <div class="meta">
+          ${p.ultimaAlturaCm != null ? `<span>Água: <b>${Math.round(p.ultimaAlturaCm)} cm</b> · ${haQuanto(p.dataUltimaLeitura)}</span>` : `<span>Sem medição de sensor</span>`}
+          ${p.ocorrenciasAbertas ? `<span>📣 <b>${p.ocorrenciasAbertas}</b> ${p.ocorrenciasAbertas > 1 ? "avisos" : "aviso"} de vizinhos</span>` : ""}
+        </div>
+      </article>`).join("") || `<p class="card vazio">Nenhum ponto monitorado.</p>`;
+  }
+
+  function desenharAvisos() {
+    const nomesPonto = Object.fromEntries(pontos.map((p) => [p.idPonto, p.nome]));
+    const nomesCid = Object.fromEntries(cidadaos.map((c) => [c.id, c.nome]));
+    const ordenados = [...avisos].sort((a, b) => new Date(b.dataOcorrencia) - new Date(a.dataOcorrencia) || b.id - a.id);
+    const filtrados = ordenados.filter((a) => filtro === "TODAS" || a.status === filtro);
+    const limite = matchMedia("(min-width: 860px)").matches ? 6 : 3;
+    const visiveis = mostrarTodos ? filtrados : filtrados.slice(0, limite);
+    const novos = idsVistos ? new Set(avisos.filter((a) => !idsVistos.has(a.id)).map((a) => a.id)) : new Set();
+    idsVistos = new Set(avisos.map((a) => a.id));
+    $("qtd-avisos").textContent = `${avisos.length} no total`;
+
+    $("lista-avisos").innerHTML = visiveis.map((a) => {
+      const nome = nomesCid[a.idCidadao] || "Morador " + a.idCidadao;
+      const acoes = a.status === "ABERTA"
+        ? `<button class="confirmar" data-id="${a.id}" data-st="CONFIRMADA">Confirmar</button><button data-id="${a.id}" data-st="DESCARTADA">Descartar</button>`
+        : a.status === "CONFIRMADA" ? `<button data-id="${a.id}" data-st="RESOLVIDA">Marcar como resolvido</button>` : "";
+      return `<article class="card aviso-item${novos.has(a.id) ? " novo" : ""}">
+        <div class="avatar" style="background:${CORES_AVATAR[a.idCidadao % CORES_AVATAR.length]}" aria-hidden="true">${esc(iniciais(nome))}</div>
+        <div>
+          <div class="linha"><h4>${esc(nome)}</h4><span class="tag">${haQuanto(a.dataOcorrencia)}</span></div>
+          <p class="onde">📍 ${esc(nomesPonto[a.idPonto] || "Ponto " + a.idPonto)}</p>
+          <div class="chips"><span class="chip altura">💧 ${nomeAltura(a.alturaAguaCm)} · ${a.alturaAguaCm} cm</span><span class="chip st-${a.status}">${STATUS[a.status]}</span></div>
+          ${a.descricao ? `<blockquote>“${esc(a.descricao)}”</blockquote>` : ""}
+          ${acoes ? `<div class="acoes" aria-label="Ações do agente">${acoes}</div>` : ""}
+        </div>
+      </article>`;
+    }).join("") || `<p class="card vazio">Nenhum aviso ${filtro === "TODAS" ? "" : "nesta categoria "}por enquanto.</p>`;
+
+    if (filtrados.length > limite) {
+      $("lista-avisos").insertAdjacentHTML("beforeend",
+        `<button class="mais" id="ver-mais">${mostrarTodos ? "Mostrar menos" : `Ver todos os ${filtrados.length} avisos`}</button>`);
+      $("ver-mais").onclick = () => { mostrarTodos = !mostrarTodos; desenharAvisos(); };
+    }
+    $("lista-avisos").querySelectorAll(".acoes button").forEach((b) => b.addEventListener("click", () => mudarStatus(b)));
+  }
+
+  async function mudarStatus(botao) {
+    botao.closest(".acoes").querySelectorAll("button").forEach((x) => x.disabled = true);
+    try {
+      await api(`/ocorrencias/${botao.dataset.id}/status?valor=${botao.dataset.st}`, { method: "PUT" });
+      await carregarAgora();
+    } catch (e) {
+      alert(e.message);
+      botao.closest(".acoes").querySelectorAll("button").forEach((x) => x.disabled = false);
+    }
+  }
+
+  /* ---------------- tela AVISAR ---------------- */
+  function preencherFormulario() {
+    const selCid = $("cidadao"), selPonto = $("ponto");
+    const cidAtual = selCid.value, pontoAtual = selPonto.value;
+    selCid.innerHTML = cidadaos.map((c) => `<option value="${c.id}">${esc(c.nome)}</option>`).join("");
+    selPonto.innerHTML = pontos.map((p) => `<option value="${p.idPonto}">${esc(p.nome)}</option>`).join("");
+    if (cidAtual) selCid.value = cidAtual;
+    if (pontoAtual) selPonto.value = pontoAtual;
+  }
+
+  function desenharNiveis() {
+    $("niveis").innerHTML = NIVEIS.map((n, i) => {
+      const altura = [8, 14, 22, 30][i];
+      return `<button type="button" data-cm="${n.cm}" aria-pressed="false">
+        <svg viewBox="0 0 34 34" aria-hidden="true"><rect x="13" y="2" width="8" height="30" rx="4" fill="#c7d3dc"/>
+          <rect x="3" y="${32 - altura}" width="28" height="${altura}" rx="3" fill="#4fb3e0" opacity=".75"/></svg>
+        ${n.nome}<small>${n.sub}</small></button>`;
+    }).join("");
+    $("niveis").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+      alturaEscolhida = Number(b.dataset.cm);
+      $("niveis").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    }));
+  }
+
+  $("form-relato").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const retorno = $("retorno-relato");
+    if (alturaEscolhida === null) {
+      retorno.innerHTML = '<p class="msg-retorno erro">Escolha a altura da água.</p>';
+      return;
+    }
+    try {
+      const corpo = {
+        idCidadao: Number($("cidadao").value),
+        idPonto: Number($("ponto").value),
+        alturaAguaCm: alturaEscolhida,
+        descricao: $("descricao").value.trim() || null
+      };
+      const criada = await api("/ocorrencias", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
+      retorno.innerHTML = `<p class="msg-retorno ok">Obrigado! Aviso nº ${criada.id} enviado. Ele já aparece na tela inicial.</p>`;
+      $("descricao").value = "";
+      alturaEscolhida = null;
+      $("niveis").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", "false"));
+      setTimeout(() => { retorno.innerHTML = ""; mostrar("agora"); }, 1400);
+    } catch (e) {
+      retorno.innerHTML = `<p class="msg-retorno erro">${esc(e.message)}</p>`;
+    }
+  });
+
+  /* ---------------- ALERTAS e APOIO ---------------- */
   async function carregarAlertas() {
-    const alvo = document.getElementById("lista-alertas");
+    const alvo = $("lista-alertas");
     try {
       const alertas = await api("/alertas?ativos=true");
+      if (!pontos.length) pontos = await api("/pontos/situacao");
       const nomes = Object.fromEntries(pontos.map((p) => [p.idPonto, p.nome]));
-      alvo.innerHTML = alertas.length ? alertas.map((a) => `
+      alvo.innerHTML = alertas.length ? alertas.sort((a, b) => ordem[a.nivel] - ordem[b.nivel]).map((a) => `
         <article class="card ponto ${a.nivel}">
-          <div class="linha"><h3>${esc(nomes[a.idPonto] || "Ponto " + a.idPonto)}</h3><span class="selo ${a.nivel}">${ROTULO[a.nivel]}</span></div>
-          <p class="msg">${esc(a.mensagem)}</p>
-          <p class="tag">Emitido em ${hora(a.dataEmissao)}</p>
-        </article>`).join("") : `<p class="card vazio">Nenhum alerta ativo agora.</p>`;
-    } catch (e) { alvo.innerHTML = `<p class="aviso erro">${esc(e.message)}</p>`; }
+          <div class="linha"><h3>${esc(nomes[a.idPonto] || "Ponto " + a.idPonto)}</h3><span class="selo">${ICONE[a.nivel]} ${ROTULO[a.nivel]}</span></div>
+          <p class="dica">${esc(a.mensagem)}</p>
+          <p class="tag">Emitido ${haQuanto(a.dataEmissao)}</p>
+        </article>`).join("") : `<p class="card vazio">✓ Nenhum alerta ativo agora.</p>`;
+    } catch (e) { alvo.innerHTML = `<p class="msg-retorno erro">${esc(e.message)}</p>`; }
   }
 
   async function carregarAbrigos() {
-    const alvo = document.getElementById("lista-abrigos");
+    const alvo = $("lista-abrigos");
     try {
       const abrigos = await api("/abrigos");
+      const maior = Math.max(...abrigos.map((a) => a.capacidade), 1);
       alvo.innerHTML = abrigos.map((a) => `
-        <article class="card">
-          <h3 style="margin:0 0 4px;font-size:1.05rem">${esc(a.nome)}</h3>
-          <p class="ref">${esc(a.endereco)}</p>
-          <p class="tag">Cabem ${a.capacidade} pessoas · ${a.acessivel ? "Acessível para cadeira de rodas" : "Sem acessibilidade"}</p>
-        </article>`).join("");
-    } catch (e) { alvo.innerHTML = `<p class="aviso erro">${esc(e.message)}</p>`; }
+        <article class="card abrigo">
+          <div class="ic" aria-hidden="true">🏠</div>
+          <div>
+            <h3>${esc(a.nome)}</h3>
+            <p class="ref">${esc(a.endereco)}</p>
+            <div class="chips" style="margin-top:8px">
+              <span class="chip altura">👥 ${a.capacidade} pessoas</span>
+              <span class="chip ${a.acessivel ? "st-RESOLVIDA" : "st-DESCARTADA"}">${a.acessivel ? "♿ Acessível" : "Sem acessibilidade"}</span>
+            </div>
+            <div class="capacidade" aria-hidden="true"><div style="width:${(a.capacidade / maior * 100).toFixed(0)}%"></div></div>
+          </div>
+        </article>`).join("") || `<p class="card vazio">Nenhum ponto de apoio cadastrado.</p>`;
+    } catch (e) { alvo.innerHTML = `<p class="msg-retorno erro">${esc(e.message)}</p>`; }
   }
 
+  /* ---------------- navegação ---------------- */
+  let telaAtual = "agora";
   function mostrar(tela) {
+    telaAtual = tela;
     document.querySelectorAll("main > section").forEach((s) => { s.hidden = s.id !== "tela-" + tela; });
-    document.querySelectorAll("nav button").forEach((b) => b.toggleAttribute("aria-current", b.dataset.tela === tela));
-    document.querySelectorAll('nav button[aria-current]').forEach((b) => b.setAttribute("aria-current", "page"));
+    document.querySelectorAll("nav button").forEach((b) => {
+      if (b.dataset.tela === tela) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+    window.scrollTo({ top: 0 });
     if (tela === "agora") carregarAgora();
     if (tela === "alertas") carregarAlertas();
     if (tela === "apoio") carregarAbrigos();
   }
 
   document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => mostrar(b.dataset.tela)));
-  document.querySelectorAll("#niveis button").forEach((b) => b.addEventListener("click", () => {
-    alturaEscolhida = Number(b.dataset.cm);
-    document.querySelectorAll("#niveis button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  $("filtros").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    filtro = b.dataset.filtro; mostrarTodos = false;
+    $("filtros").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    desenharAvisos();
   }));
 
-  document.getElementById("form-relato").addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    const retorno = document.getElementById("retorno-relato");
-    if (alturaEscolhida === null) {
-      retorno.innerHTML = '<p class="aviso erro">Escolha a altura da água.</p>';
-      return;
-    }
-    try {
-      const corpo = {
-        idCidadao: Number(document.getElementById("cidadao").value),
-        idPonto: Number(document.getElementById("ponto").value),
-        alturaAguaCm: alturaEscolhida,
-        descricao: document.getElementById("descricao").value.trim() || null
-      };
-      const criada = await api("/ocorrencias", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
-      retorno.innerHTML = `<p class="aviso ok">Obrigado! Aviso nº ${criada.id} enviado. Um agente vai confirmar.</p>`;
-      ev.target.reset();
-      alturaEscolhida = null;
-      document.querySelectorAll("#niveis button").forEach((x) => x.setAttribute("aria-pressed", "false"));
-    } catch (e) {
-      retorno.innerHTML = `<p class="aviso erro">${esc(e.message)}</p>`;
-    }
-  });
-
+  desenharNiveis();
   carregarAgora();
-  carregarCidadaos();
+  setInterval(() => { if (telaAtual === "agora" && !document.hidden) carregarAgora(); }, 30000);
 </script>
 </body>
 </html>
