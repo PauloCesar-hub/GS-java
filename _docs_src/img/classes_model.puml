@@ -1,0 +1,146 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #0b3c5d
+skinparam classHeaderBackgroundColor #e6f0f7
+skinparam defaultFontName Helvetica
+skinparam linetype ortho
+left to right direction
+title Camada model (br.com.fiap.rotaseca.model)
+class Abrigo {
+-id : Long
+-idBairro : Long
+-nome : String
+-endereco : String
+-capacidade : Integer
+-acessivel : Boolean
+}
+class Alerta {
+-id : Long
+-idPonto : Long
+-nivel : NivelAlerta
+-mensagem : String
+-dataEmissao : LocalDateTime
+-dataEncerramento : LocalDateTime
++isAtivo() : boolean
+}
+class Bairro {
+-id : Long
+-nome : String
+-subprefeitura : String
+-zona : Zona
+}
+enum CanalNotificacao {
+PUSH
+SMS
+WHATSAPP
+EMAIL
+}
+class Cidadao {
+-id : Long
+-idBairro : Long
+-nome : String
+-email : String
+-telefone : String
+-perfil : PerfilCidadao
+-recebeAlerta : Boolean
+-dataCadastro : LocalDate
+}
+class Leitura {
+-id : Long
+-idSensor : Long
+-dataLeitura : LocalDateTime
+-valor : Double
+}
+enum NivelAlerta {
+ATENCAO
+ALERTA
+EMERGENCIA
+}
+class Notificacao {
+-id : Long
+-idAlerta : Long
+-idCidadao : Long
+-dataEnvio : LocalDateTime
+-canal : CanalNotificacao
+-lida : Boolean
+}
+class Ocorrencia {
+-id : Long
+-idCidadao : Long
+-idPonto : Long
+-dataOcorrencia : LocalDateTime
+-alturaAguaCm : Integer
+-descricao : String
+-status : StatusOcorrencia
+}
+enum PerfilCidadao {
+MORADOR
+IDOSO
+PCD
+TRABALHADOR
+RESPONSAVEL
+AGENTE
+}
+class PontoRisco {
+-id : Long
+-idBairro : Long
+-nome : String
+-referencia : String
+-latitude : Double
+-longitude : Double
+-cotaAtencaoCm : Integer
+-cotaCriticaCm : Integer
+-ativo : Boolean
++classificar(alturaCm) : NivelAlerta
+}
+class Sensor {
+-id : Long
+-idPonto : Long
+-codigoSerie : String
+-tipo : TipoSensor
+-dataInstalacao : LocalDate
+-status : StatusSensor
+}
+enum StatusOcorrencia {
+ABERTA
+CONFIRMADA
+RESOLVIDA
+DESCARTADA
+}
+enum StatusSensor {
+ATIVO
+MANUTENCAO
+INATIVO
+}
+enum TipoSensor {
+NIVEL
+PLUVIOMETRO
+}
+enum Zona {
+NORTE
+SUL
+LESTE
+OESTE
+CENTRO
+}
+Bairro "1" -- "0..*" PontoRisco
+Bairro "1" -- "0..*" Abrigo
+Bairro "1" -- "0..*" Cidadao
+PontoRisco "1" -- "0..*" Sensor
+Sensor "1" -- "0..*" Leitura
+PontoRisco "1" -- "0..*" Ocorrencia
+Cidadao "1" -- "0..*" Ocorrencia
+PontoRisco "1" -- "0..*" Alerta
+Alerta "1" -- "0..*" Notificacao
+Cidadao "1" -- "0..*" Notificacao
+Bairro ..> Zona
+Sensor ..> TipoSensor
+Sensor ..> StatusSensor
+Cidadao ..> PerfilCidadao
+Ocorrencia ..> StatusOcorrencia
+Alerta ..> NivelAlerta
+Notificacao ..> CanalNotificacao
+PontoRisco ..> NivelAlerta
+@enduml

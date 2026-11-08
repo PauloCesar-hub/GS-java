@@ -1,0 +1,40 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #0b3c5d
+skinparam classHeaderBackgroundColor #e6f0f7
+skinparam defaultFontName Helvetica
+title Camada de tratamento de excecoes (br.com.fiap.rotaseca.exception)
+package "exception" {
+class ConflitoException
+class DadosInvalidosException
+class ErroResponse <<record>> {
+timestamp, status, erro, mensagem, caminho, detalhes
+}
+class GlobalExceptionHandler <<RestControllerAdvice>> {
++naoEncontrado(e, req) : ResponseEntity<ErroResponse>
++dadosInvalidos(e, req) : ResponseEntity<ErroResponse>
++regraNegocio(e, req) : ResponseEntity<ErroResponse>
++conflito(e, req) : ResponseEntity<ErroResponse>
++persistencia(e, req) : ResponseEntity<ErroResponse>
++jsonInvalido(e, req) : ResponseEntity<ErroResponse>
++tipoInvalido(e, req) : ResponseEntity<ErroResponse>
++parametroAusente(e, req) : ResponseEntity<ErroResponse>
++metodoNaoSuportado(e, req) : ResponseEntity<ErroResponse>
++rotaInexistente(e, req) : ResponseEntity<ErroResponse>
++inesperado(e, req) : ResponseEntity<ErroResponse>
+}
+class PersistenciaException
+class RecursoNaoEncontradoException
+class RegraNegocioException
+abstract class RotaSecaException
+}
+RotaSecaException <|-- RecursoNaoEncontradoException
+RotaSecaException <|-- DadosInvalidosException
+RotaSecaException <|-- RegraNegocioException
+RotaSecaException <|-- ConflitoException
+RotaSecaException <|-- PersistenciaException
+RuntimeException <|-- RotaSecaException
+GlobalExceptionHandler ..> ErroResponse
+@enduml

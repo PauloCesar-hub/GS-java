@@ -1,0 +1,16 @@
+RotaSeca - Global Solution 2026.2 - FIAP
+Disciplina: Data Science & Statistical Computing
+Engenharia de Software - 2o ano (Fev)
+
+Integrantes (nome - RM):
+Christian Schunck de Almeida - RM563850
+Guilherme Vilela Perez - RM564422
+Gustavo Panham Dourado - RM563904
+Paulo Cesar de Govea Junior - RM566034
+Thomas Jeferson Santana Wang - RM565104
+
+Arquivos:
+- RotaSeca_DataScience.ipynb : notebook executado (preparacao, treino/teste, regressao linear e logistica, metricas, graficos e recomendacoes)
+- rotaseca_chuvas_alagamentos.csv : base utilizada (19.200 linhas)
+- gerar_dados.py : script que gera a base (semente fixa 2026)
+- FONTE_DOS_DADOS.txt : origem e dicionario da base

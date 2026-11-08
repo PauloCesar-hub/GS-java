@@ -1,0 +1,290 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #0b3c5d
+skinparam classHeaderBackgroundColor #e6f0f7
+skinparam defaultFontName Helvetica
+skinparam packageStyle rectangle
+left to right direction
+title Camadas controller -> BO -> DAO
+package "controller" {
+class AbrigoController {
++listar(idBairro) : ResponseEntity<List<Abrigo>>
++buscar(id) : ResponseEntity<Abrigo>
++criar(corpo) : ResponseEntity<Abrigo>
++atualizar(id, corpo) : ResponseEntity<Abrigo>
++excluir(id) : ResponseEntity<Void>
+}
+class AlertaController {
++listar(ativos) : ResponseEntity<List<Alerta>>
++buscar(id) : ResponseEntity<Alerta>
++criar(corpo) : ResponseEntity<Alerta>
++atualizar(id, corpo) : ResponseEntity<Alerta>
++encerrar(id) : ResponseEntity<Alerta>
++excluir(id) : ResponseEntity<Void>
+}
+class BairroController {
++listar() : ResponseEntity<List<Bairro>>
++buscar(id) : ResponseEntity<Bairro>
++criar(corpo) : ResponseEntity<Bairro>
++atualizar(id, corpo) : ResponseEntity<Bairro>
++excluir(id) : ResponseEntity<Void>
+}
+class CidadaoController {
++listar() : ResponseEntity<List<Cidadao>>
++buscar(id) : ResponseEntity<Cidadao>
++criar(corpo) : ResponseEntity<Cidadao>
++atualizar(id, corpo) : ResponseEntity<Cidadao>
++excluir(id) : ResponseEntity<Void>
+}
+class InfoController {
++info() : ResponseEntity<Map<String, Object>>
+}
+class LeituraController {
++listar(idSensor) : ResponseEntity<List<Leitura>>
++buscar(id) : ResponseEntity<Leitura>
++registrar(corpo) : ResponseEntity<LeituraRegistradaResponse>
++atualizar(id, corpo) : ResponseEntity<Leitura>
++excluir(id) : ResponseEntity<Void>
+}
+class NotificacaoController {
++listar(idCidadao, idAlerta) : ResponseEntity<List<Notificacao>>
++buscar(id) : ResponseEntity<Notificacao>
++criar(corpo) : ResponseEntity<Notificacao>
++atualizar(id, corpo) : ResponseEntity<Notificacao>
++marcarComoLida(id) : ResponseEntity<Notificacao>
++excluir(id) : ResponseEntity<Void>
+}
+class OcorrenciaController {
++listar(status, idPonto) : ResponseEntity<List<Ocorrencia>>
++buscar(id) : ResponseEntity<Ocorrencia>
++criar(corpo) : ResponseEntity<Ocorrencia>
++atualizar(id, corpo) : ResponseEntity<Ocorrencia>
++alterarStatus(id, valor) : ResponseEntity<Ocorrencia>
++excluir(id) : ResponseEntity<Void>
+}
+class PontoRiscoController {
++listar(idBairro) : ResponseEntity<List<PontoRisco>>
++situacaoGeral() : ResponseEntity<List<SituacaoPontoResponse>>
++buscar(id) : ResponseEntity<PontoRisco>
++situacao(id) : ResponseEntity<SituacaoPontoResponse>
++criar(corpo) : ResponseEntity<PontoRisco>
++atualizar(id, corpo) : ResponseEntity<PontoRisco>
++excluir(id) : ResponseEntity<Void>
+}
+class SensorController {
++listar(idPonto) : ResponseEntity<List<Sensor>>
++buscar(id) : ResponseEntity<Sensor>
++criar(corpo) : ResponseEntity<Sensor>
++atualizar(id, corpo) : ResponseEntity<Sensor>
++excluir(id) : ResponseEntity<Void>
+}
+}
+package "bo" {
+class AbrigoBO {
++listar(idBairro) : List<Abrigo>
++buscar(id) : Abrigo
++criar(abrigo) : Abrigo
++atualizar(id, abrigo) : Abrigo
++excluir(id) : void
+}
+class AlertaBO {
++listar(somenteAtivos) : List<Alerta>
++buscar(id) : Alerta
++criar(alerta) : Alerta
++atualizar(id, alerta) : Alerta
++encerrar(id) : Alerta
++excluir(id) : void
++avaliarNivel(ponto, alturaCm, quando) : AvaliacaoNivelResponse
+}
+class BairroBO {
++listar() : List<Bairro>
++buscar(id) : Bairro
++criar(bairro) : Bairro
++atualizar(id, bairro) : Bairro
++excluir(id) : void
+}
+class CidadaoBO {
++listar() : List<Cidadao>
++buscar(id) : Cidadao
++criar(cidadao) : Cidadao
++atualizar(id, cidadao) : Cidadao
++excluir(id) : void
+}
+class LeituraBO {
++listar(idSensor) : List<Leitura>
++buscar(id) : Leitura
++registrar(leitura) : LeituraRegistradaResponse
++atualizar(id, leitura) : Leitura
++excluir(id) : void
+}
+class NotificacaoBO {
++listar(idCidadao, idAlerta) : List<Notificacao>
++buscar(id) : Notificacao
++criar(n) : Notificacao
++atualizar(id, n) : Notificacao
++marcarComoLida(id) : Notificacao
++excluir(id) : void
+}
+class OcorrenciaBO {
++listar(status, idPonto) : List<Ocorrencia>
++buscar(id) : Ocorrencia
++criar(ocorrencia) : Ocorrencia
++atualizar(id, ocorrencia) : Ocorrencia
++alterarStatus(id, novoStatus) : Ocorrencia
++excluir(id) : void
+}
+class PontoRiscoBO {
++listar(idBairro) : List<PontoRisco>
++buscar(id) : PontoRisco
++criar(ponto) : PontoRisco
++atualizar(id, ponto) : PontoRisco
++excluir(id) : void
++situacaoGeral() : List<SituacaoPontoResponse>
++situacao(id) : SituacaoPontoResponse
+}
+class SensorBO {
++listar(idPonto) : List<Sensor>
++buscar(id) : Sensor
++criar(sensor) : Sensor
++atualizar(id, sensor) : Sensor
++excluir(id) : void
+}
+}
+package "dao" {
+class AbrigoDao {
++listar() : List<Abrigo>
++listarPorBairro(idBairro) : List<Abrigo>
++buscarPorId(id) : Optional<Abrigo>
++inserir(a) : Abrigo
++atualizar(a) : boolean
++excluir(id) : boolean
+}
+class AlertaDao {
++listar() : List<Alerta>
++listarAtivos() : List<Alerta>
++listarAtivosPorPonto(idPonto) : List<Alerta>
++buscarPorId(id) : Optional<Alerta>
++inserir(a) : Alerta
++atualizar(a) : boolean
++encerrarAtivosDoPonto(idPonto, quando) : int
++excluir(id) : boolean
+}
+class BairroDao {
++listar() : List<Bairro>
++buscarPorId(id) : Optional<Bairro>
++inserir(b) : Bairro
++atualizar(b) : boolean
++excluir(id) : boolean
+}
+abstract class BaseDao {
+-dataSource : DataSource
+#listar(sql, parametros, mapeador) : List<T>
+#buscarUm(sql, parametros, mapeador) : Optional<T>
+#inserir(sql, colunaId, parametros) : long
+#executar(sql, parametros) : int
+#traduzir(SQLException) : RuntimeException
+}
+class CidadaoDao {
++listar() : List<Cidadao>
++buscarPorId(id) : Optional<Cidadao>
++buscarPorEmail(email) : Optional<Cidadao>
++listarQueRecebemAlerta(idBairro) : List<Cidadao>
++inserir(c) : Cidadao
++atualizar(c) : boolean
++excluir(id) : boolean
+}
+class LeituraDao {
++listar() : List<Leitura>
++listarPorSensor(idSensor) : List<Leitura>
++buscarPorId(id) : Optional<Leitura>
++ultimaLeituraDeNivel(idPonto) : Optional<Leitura>
++inserir(l) : Leitura
++atualizar(l) : boolean
++excluir(id) : boolean
+}
+class NotificacaoDao {
++listar() : List<Notificacao>
++listarPorCidadao(idCidadao) : List<Notificacao>
++listarPorAlerta(idAlerta) : List<Notificacao>
++buscarPorId(id) : Optional<Notificacao>
++existe(idAlerta, idCidadao) : boolean
++inserir(n) : Notificacao
++atualizar(n) : boolean
++excluir(id) : boolean
+}
+class OcorrenciaDao {
++listar() : List<Ocorrencia>
++listarPorStatus(status) : List<Ocorrencia>
++listarPorPonto(idPonto) : List<Ocorrencia>
++buscarPorId(id) : Optional<Ocorrencia>
++inserir(o) : Ocorrencia
++atualizar(o) : boolean
++excluir(id) : boolean
+}
+class PontoRiscoDao {
++listar() : List<PontoRisco>
++listarAtivos() : List<PontoRisco>
++listarPorBairro(idBairro) : List<PontoRisco>
++buscarPorId(id) : Optional<PontoRisco>
++inserir(p) : PontoRisco
++atualizar(p) : boolean
++excluir(id) : boolean
+}
+class SensorDao {
++listar() : List<Sensor>
++listarPorPonto(idPonto) : List<Sensor>
++buscarPorId(id) : Optional<Sensor>
++buscarPorCodigoSerie(codigo) : Optional<Sensor>
++inserir(s) : Sensor
++atualizar(s) : boolean
++excluir(id) : boolean
+}
+}
+BaseDao <|-- AbrigoDao
+BaseDao <|-- AlertaDao
+BaseDao <|-- BairroDao
+BaseDao <|-- CidadaoDao
+BaseDao <|-- LeituraDao
+BaseDao <|-- NotificacaoDao
+BaseDao <|-- OcorrenciaDao
+BaseDao <|-- PontoRiscoDao
+BaseDao <|-- SensorDao
+AbrigoController --> AbrigoBO
+AlertaController --> AlertaBO
+BairroController --> BairroBO
+CidadaoController --> CidadaoBO
+LeituraController --> LeituraBO
+NotificacaoController --> NotificacaoBO
+OcorrenciaController --> OcorrenciaBO
+PontoRiscoController --> PontoRiscoBO
+SensorController --> SensorBO
+AbrigoBO --> AbrigoDao
+AbrigoBO --> BairroDao
+AlertaBO --> AlertaDao
+AlertaBO --> PontoRiscoDao
+AlertaBO --> CidadaoDao
+AlertaBO --> NotificacaoDao
+BairroBO --> BairroDao
+CidadaoBO --> CidadaoDao
+CidadaoBO --> BairroDao
+LeituraBO --> LeituraDao
+LeituraBO --> SensorDao
+LeituraBO --> PontoRiscoDao
+LeituraBO --> AlertaBO
+NotificacaoBO --> NotificacaoDao
+NotificacaoBO --> AlertaDao
+NotificacaoBO --> CidadaoDao
+OcorrenciaBO --> OcorrenciaDao
+OcorrenciaBO --> CidadaoDao
+OcorrenciaBO --> PontoRiscoDao
+OcorrenciaBO --> AlertaBO
+PontoRiscoBO --> PontoRiscoDao
+PontoRiscoBO --> BairroDao
+PontoRiscoBO --> LeituraDao
+PontoRiscoBO --> AlertaDao
+PontoRiscoBO --> OcorrenciaDao
+SensorBO --> SensorDao
+SensorBO --> PontoRiscoDao
+@enduml

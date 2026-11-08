@@ -1,0 +1,38 @@
+{
+  "nome_equipe": "Equipe RotaSeca",
+  "solucao": "RotaSeca - alertas de alagamento e rotas seguras",
+  "turma": "2ESPx (preencher)",
+  "data": "Sao Paulo, novembro de 2026",
+  "link_github": "https://github.com/SEU-USUARIO/rotaseca",
+  "link_deploy": "https://rotaseca-api.onrender.com",
+  "link_pitch": "https://youtu.be/PREENCHER",
+  "integrantes": [
+    {
+      "nome": "Christian Schunck de Almeida",
+      "rm": "RM563850"
+    },
+    {
+      "nome": "Guilherme Vilela Perez",
+      "rm": "RM564422"
+    },
+    {
+      "nome": "Gustavo Panham Dourado",
+      "rm": "RM563904"
+    },
+    {
+      "nome": "Paulo Cesar de Govea Junior",
+      "rm": "RM566034"
+    },
+    {
+      "nome": "Thomas Jeferson Santana Wang",
+      "rm": "RM565104"
+    }
+  ],
+  "escuta": {
+    "pessoa": "",
+    "data_local": "",
+    "faz_hoje": "",
+    "atrapalha": "",
+    "frase": ""
+  }
+}

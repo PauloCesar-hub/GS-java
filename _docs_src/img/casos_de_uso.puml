@@ -1,0 +1,69 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam usecaseBackgroundColor #FFFFFF
+skinparam usecaseBorderColor #0b3c5d
+skinparam actorBorderColor #0b3c5d
+skinparam packageBorderColor #0b3c5d
+skinparam ArrowColor #3d5a80
+title Diagrama de Casos de Uso - RotaSeca (escopo total)
+
+actor "Morador" as Morador
+actor "Idoso / Pessoa com\ndeficiência" as PCD
+actor "Agente público\n(Defesa Civil /\nSubprefeitura)" as Agente
+actor "Administrador\nRotaSeca" as Admin
+actor "Sensor IoT\n(nível / chuva)" as Sensor <<sistema>>
+actor "Serviço de mensagens\n(WhatsApp / SMS / push)" as Msg <<sistema>>
+actor "Serviço de previsão\n(modelo de dados)" as Prev <<sistema>>
+
+PCD -|> Morador
+
+rectangle "RotaSeca" {
+  usecase "UC01 Cadastrar-se e escolher\ncanal de alerta" as UC01
+  usecase "UC02 Consultar situação\ndas ruas" as UC02
+  usecase "UC03 Receber alerta\nde alagamento" as UC03
+  usecase "UC04 Ouvir alerta em áudio /\nletra ampliada" as UC04
+  usecase "UC05 Relatar alagamento" as UC05
+  usecase "UC06 Anexar foto ao relato" as UC06
+  usecase "UC07 Consultar rota segura\npor perfil" as UC07
+  usecase "UC08 Consultar pontos de apoio" as UC08
+  usecase "UC09 Confirmar ou descartar\nrelato" as UC09
+  usecase "UC10 Emitir alerta manual" as UC10
+  usecase "UC11 Encerrar alerta" as UC11
+  usecase "UC12 Consultar ranking de\npontos críticos" as UC12
+  usecase "UC13 Planejar instalação\nde sensores (orçamento)" as UC13
+  usecase "UC14 Gerenciar bairros, pontos\nde risco, abrigos e sensores" as UC14
+  usecase "UC15 Enviar leitura" as UC15
+  usecase "UC16 Avaliar nível e emitir\nalerta automático" as UC16
+  usecase "UC17 Notificar moradores\ndo bairro" as UC17
+  usecase "UC18 Emitir pré-alerta por\nprevisão de chuva" as UC18
+}
+
+Morador --> UC01
+Morador --> UC02
+Morador --> UC03
+Morador --> UC05
+Morador --> UC07
+Morador --> UC08
+PCD --> UC04
+UC04 .> UC03 : <<extend>>
+UC06 .> UC05 : <<extend>>
+UC07 .> UC02 : <<include>>
+
+Agente --> UC09
+Agente --> UC10
+Agente --> UC11
+Agente --> UC12
+Agente --> UC13
+Admin --> UC14
+
+Sensor --> UC15
+UC15 .> UC16 : <<include>>
+UC09 .> UC16 : <<include>>
+UC16 .> UC17 : <<include>>
+UC10 .> UC17 : <<include>>
+UC17 --> Msg
+Prev --> UC18
+UC18 .> UC17 : <<include>>
+@enduml

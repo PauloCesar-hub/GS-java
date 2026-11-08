@@ -1,0 +1,43 @@
+FONTE DA BASE rotaseca_chuvas_alagamentos.csv
+=============================================
+
+Tipo: base SINTETICA (simulada), gerada pelo script gerar_dados.py (semente 2026).
+Para reproduzir: python gerar_dados.py
+
+Por que simulada:
+- Os combinados da Global Solution proibem dados pessoais reais.
+- Os dados publicos de alagamento de Sao Paulo (CGE - Centro de Gerenciamento de
+  Emergencias Climaticas; CET) nao trazem, por ponto e por hora, a altura da lamina
+  d'agua junto com chuva acumulada e bueiros obstruidos.
+
+Como foi calibrada (ordem de grandeza, nao valores oficiais):
+- Faixas de intensidade de chuva usuais em boletins meteorologicos (ex.: CGE-SP):
+  fraca < 5 mm/h, moderada 5-25, forte 25-50, muito forte > 50 mm/h.
+- Estacao chuvosa de outubro a marco, com mais temporais entre 14h e 20h.
+- 6 pontos de risco e cotas criticas iguais as da tabela T_RS_PONTO_RISCO do banco
+  Oracle da RotaSeca (Parque Novo Mundo e entorno, Zona Norte de Sao Paulo).
+- Lamina d'agua = combinacao linear de chuva (1h, 3h, 24h), bueiros obstruidos e
+  caracteristicas do ponto + ruido normal (desvio 4,5 cm), cortada em 0.
+- intransitavel = 1 quando a lamina >= cota critica, com 1,5% de erro de registro.
+- 60 valores ausentes inseridos de proposito (falha de sensor).
+
+Periodo: 01/01/2024 a 31/12/2025 | 3.200 horas de chuva x 6 pontos = 19.200 linhas.
+
+Dicionario:
+data_hora            data e hora do registro
+id_ponto, nome_ponto ponto de risco (mesmos ids do banco e da API)
+cota_critica_cm      altura de agua a partir da qual a via fica intransitavel
+area_impermeavel_pct % de area impermeavel no entorno
+distancia_corrego_m  distancia ate o corrego (m)
+altitude_relativa_m  altura em relacao a baixada do bairro (m)
+estacao_chuvosa      1 = outubro a marco
+hora                 hora do dia
+chuva_1h_mm          chuva na ultima hora (mm)
+chuva_3h_mm          chuva acumulada em 3 horas (mm)
+chuva_24h_mm         chuva acumulada em 24 horas (mm)
+bueiros_obstruidos   relatos de bueiros entupidos perto do ponto (zeladoria)
+lamina_agua_cm       ALVO da regressao linear (cm)
+intransitavel        ALVO da regressao logistica (0/1)
+
+Referencias de contexto: boletins e avisos do CGE (cgesp.org) sobre estados de
+atencao e alerta para alagamentos na Zona Norte e Marginal Tiete.

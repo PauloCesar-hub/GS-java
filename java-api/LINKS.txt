@@ -1,0 +1,14 @@
+RotaSeca - Domain Driven Design (Java) - GS 2026.2
+
+Link do projeto no GitHub: https://github.com/SEU-USUARIO/rotaseca
+Link do deploy (Render):   https://rotaseca-api.onrender.com
+  - Pagina web: https://rotaseca-api.onrender.com/
+  - API:        https://rotaseca-api.onrender.com/api
+  - Swagger:    https://rotaseca-api.onrender.com/swagger-ui.html
+
+Integrantes:
+- Christian Schunck de Almeida - RM563850
+- Guilherme Vilela Perez - RM564422
+- Gustavo Panham Dourado - RM563904
+- Paulo Cesar de Govea Junior - RM566034
+- Thomas Jeferson Santana Wang - RM565104

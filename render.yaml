@@ -1,0 +1,16 @@
+# Blueprint opcional do Render (tambem pode criar o Web Service pela interface).
+services:
+  - type: web
+    name: rotaseca-api
+    runtime: docker
+    plan: free
+    rootDir: java-api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false

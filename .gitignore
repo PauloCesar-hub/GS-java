@@ -1,0 +1,12 @@
+# build / IDE
+target/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+.env
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/

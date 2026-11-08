@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RotaSeca - alagamentos no seu caminho</title>
+<style>
+  :root {
+    --azul: #0b3c5d; --azul-claro: #e6f0f7; --texto: #1b1b1b; --cinza: #5b6670; --fundo: #f4f6f8;
+    --normal: #1e7b34; --atencao: #8a6d00; --alerta: #b45309; --emergencia: #b3261e; --semdados: #5b6670;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 18px;
+         color: var(--texto); background: var(--fundo); line-height: 1.45; }
+  header { background: var(--azul); color: #fff; padding: 16px 18px 12px; }
+  header h1 { margin: 0; font-size: 1.35rem; letter-spacing: .2px; }
+  header p { margin: 2px 0 0; font-size: .9rem; opacity: .9; }
+  main { max-width: 520px; margin: 0 auto; padding: 14px 14px 96px; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #d5dbe0;
+        display: flex; justify-content: center; }
+  nav div { display: flex; width: 100%; max-width: 520px; }
+  nav button { flex: 1; border: 0; background: none; padding: 10px 4px 12px; font-size: .85rem; color: var(--cinza);
+               cursor: pointer; font-weight: 600; }
+  nav button span { display: block; font-size: 1.4rem; line-height: 1.2; }
+  nav button[aria-current="page"] { color: var(--azul); box-shadow: inset 0 3px 0 var(--azul); }
+  h2 { font-size: 1.15rem; margin: 6px 0 12px; }
+  .card { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid #dde3e8; }
+  .ponto { border-left: 8px solid var(--semdados); }
+  .ponto h3 { margin: 0 0 2px; font-size: 1.05rem; }
+  .ref { color: var(--cinza); font-size: .9rem; margin: 0 0 8px; }
+  .selo { display: inline-block; font-weight: 700; font-size: .85rem; padding: 3px 10px; border-radius: 999px; color: #fff; }
+  .NORMAL { border-left-color: var(--normal); } .selo.NORMAL { background: var(--normal); }
+  .ATENCAO { border-left-color: var(--atencao); } .selo.ATENCAO { background: var(--atencao); }
+  .ALERTA { border-left-color: var(--alerta); } .selo.ALERTA { background: var(--alerta); }
+  .EMERGENCIA { border-left-color: var(--emergencia); } .selo.EMERGENCIA { background: var(--emergencia); }
+  .SEM_DADOS { border-left-color: var(--semdados); } .selo.SEM_DADOS { background: var(--semdados); }
+  .linha { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .msg { margin: 8px 0 0; font-size: .95rem; }
+  .resumo { background: var(--azul-claro); border: 0; }
+  .resumo strong { font-size: 1.6rem; display: block; }
+  label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  select, input, textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid #9aa5ae; border-radius: 10px;
+                            background: #fff; font-family: inherit; }
+  textarea { min-height: 84px; resize: vertical; }
+  .niveis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .niveis button { padding: 12px 8px; border: 2px solid #c5ced5; background: #fff; border-radius: 10px; font-size: .95rem;
+                   cursor: pointer; text-align: left; font-family: inherit; }
+  .niveis button[aria-pressed="true"] { border-color: var(--azul); background: var(--azul-claro); font-weight: 700; }
+  .primario { width: 100%; margin-top: 16px; padding: 15px; font-size: 1.05rem; font-weight: 700; border: 0; border-radius: 12px;
+              background: var(--azul); color: #fff; cursor: pointer; }
+  .aviso { padding: 12px 14px; border-radius: 10px; margin-top: 12px; font-weight: 600; }
+  .aviso.ok { background: #e3f4e7; color: #134d22; } .aviso.erro { background: #fbe4e2; color: #7a1a14; }
+  .vazio { color: var(--cinza); text-align: center; padding: 20px 8px; }
+  .tag { font-size: .8rem; color: var(--cinza); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>RotaSeca</h1>
+  <p>Alagamentos no seu caminho &middot; Parque Novo Mundo e regi&atilde;o</p>
+</header>
+
+<main>
+  <section id="tela-agora" aria-labelledby="t-agora">
+    <h2 id="t-agora">Como est&atilde;o as ruas agora</h2>
+    <div class="card resumo" id="resumo">Carregando...</div>
+    <div id="lista-pontos"></div>
+  </section>
+
+  <section id="tela-relatar" aria-labelledby="t-relatar" hidden>
+    <h2 id="t-relatar">Avisar sobre um alagamento</h2>
+    <form id="form-relato" class="card" novalidate>
+      <label for="cidadao">Quem est&aacute; avisando</label>
+      <select id="cidadao" required></select>
+      <label for="ponto">Onde est&aacute; alagado</label>
+      <select id="ponto" required></select>
+      <span class="tag" id="ajuda-altura">Qual a altura da &aacute;gua?</span>
+      <div class="niveis" role="group" aria-labelledby="ajuda-altura" id="niveis">
+        <button type="button" data-cm="5" aria-pressed="false">Po&ccedil;a (at&eacute; o tornozelo)</button>
+        <button type="button" data-cm="20" aria-pressed="false">Canela</button>
+        <button type="button" data-cm="45" aria-pressed="false">Joelho</button>
+        <button type="button" data-cm="70" aria-pressed="false">Acima do joelho</button>
+      </div>
+      <label for="descricao">O que voc&ecirc; est&aacute; vendo? (opcional)</label>
+      <textarea id="descricao" maxlength="300" placeholder="Ex.: rampa da UBS coberta de &aacute;gua"></textarea>
+      <button class="primario" type="submit">Enviar aviso</button>
+      <div id="retorno-relato" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section id="tela-alertas" aria-labelledby="t-alertas" hidden>
+    <h2 id="t-alertas">Alertas ativos</h2>
+    <div id="lista-alertas"></div>
+  </section>
+
+  <section id="tela-apoio" aria-labelledby="t-apoio" hidden>
+    <h2 id="t-apoio">Pontos de apoio</h2>
+    <p class="tag">Locais para esperar a chuva passar com seguran&ccedil;a.</p>
+    <div id="lista-abrigos"></div>
+  </section>
+</main>
+
+<nav aria-label="Menu principal"><div>
+  <button data-tela="agora" aria-current="page"><span aria-hidden="true">&#9673;</span>Agora</button>
+  <button data-tela="relatar"><span aria-hidden="true">&#9998;</span>Avisar</button>
+  <button data-tela="alertas"><span aria-hidden="true">&#9888;</span>Alertas</button>
+  <button data-tela="apoio"><span aria-hidden="true">&#8962;</span>Apoio</button>
+</div></nav>
+
+<script>
+  const API = "/api";
+  const ROTULO = { NORMAL: "Normal", ATENCAO: "Atenção", ALERTA: "Alerta", EMERGENCIA: "Intransitável", SEM_DADOS: "Sem sensor" };
+  const DICA = {
+    NORMAL: "Pode passar normalmente.",
+    ATENCAO: "Água acumulando. Cuidado ao passar.",
+    ALERTA: "Evite a pé, com carrinho ou cadeira de rodas.",
+    EMERGENCIA: "Não atravesse. Use outro caminho.",
+    SEM_DADOS: "Ainda sem sensor. Veja os avisos dos vizinhos."
+  };
+  let pontos = [];
+  let alturaEscolhida = null;
+
+  const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const hora = (iso) => iso ? new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "-";
+
+  async function api(caminho, opcoes) {
+    const resp = await fetch(API + caminho, opcoes);
+    const corpo = resp.status === 204 ? null : await resp.json().catch(() => null);
+    if (!resp.ok) {
+      const detalhe = corpo && corpo.detalhes && corpo.detalhes.length ? ": " + corpo.detalhes.join("; ") : "";
+      throw new Error((corpo && corpo.mensagem ? corpo.mensagem : "Erro " + resp.status) + detalhe);
+    }
+    return corpo;
+  }
+
+  async function carregarAgora() {
+    try {
+      pontos = await api("/pontos/situacao");
+      const criticos = pontos.filter((p) => p.situacao === "EMERGENCIA" || p.situacao === "ALERTA").length;
+      document.getElementById("resumo").innerHTML = criticos
+        ? `<strong>${criticos} trecho(s) para evitar</strong>Veja abaixo e escolha outro caminho.`
+        : `<strong>Nenhum trecho crítico</strong>${pontos.length} pontos acompanhados no bairro.`;
+      const ordem = { EMERGENCIA: 0, ALERTA: 1, ATENCAO: 2, SEM_DADOS: 3, NORMAL: 4 };
+      document.getElementById("lista-pontos").innerHTML = [...pontos]
+        .sort((a, b) => ordem[a.situacao] - ordem[b.situacao])
+        .map((p) => `
+          <article class="card ponto ${p.situacao}">
+            <div class="linha"><h3>${esc(p.nome)}</h3><span class="selo ${p.situacao}">${ROTULO[p.situacao]}</span></div>
+            <p class="ref">${esc(p.referencia)}</p>
+            <p class="msg"><strong>${DICA[p.situacao]}</strong></p>
+            <p class="tag">${p.ultimaAlturaCm != null ? `Última medição: ${p.ultimaAlturaCm} cm · ${hora(p.dataUltimaLeitura)}` : "Sem medição de sensor"}${p.ocorrenciasAbertas ? ` · ${p.ocorrenciasAbertas} aviso(s) de vizinhos` : ""}</p>
+          </article>`).join("");
+      document.getElementById("ponto").innerHTML = pontos.map((p) => `<option value="${p.idPonto}">${esc(p.nome)}</option>`).join("");
+    } catch (e) {
+      document.getElementById("resumo").textContent = "Não foi possível carregar: " + e.message;
+    }
+  }
+
+  async function carregarCidadaos() {
+    try {
+      const lista = await api("/cidadaos");
+      document.getElementById("cidadao").innerHTML = lista.map((c) => `<option value="${c.id}">${esc(c.nome)}</option>`).join("");
+    } catch (e) { /* tela de relato mostra o erro ao enviar */ }
+  }
+
+  async function carregarAlertas() {
+    const alvo = document.getElementById("lista-alertas");
+    try {
+      const alertas = await api("/alertas?ativos=true");
+      const nomes = Object.fromEntries(pontos.map((p) => [p.idPonto, p.nome]));
+      alvo.innerHTML = alertas.length ? alertas.map((a) => `
+        <article class="card ponto ${a.nivel}">
+          <div class="linha"><h3>${esc(nomes[a.idPonto] || "Ponto " + a.idPonto)}</h3><span class="selo ${a.nivel}">${ROTULO[a.nivel]}</span></div>
+          <p class="msg">${esc(a.mensagem)}</p>
+          <p class="tag">Emitido em ${hora(a.dataEmissao)}</p>
+        </article>`).join("") : `<p class="card vazio">Nenhum alerta ativo agora.</p>`;
+    } catch (e) { alvo.innerHTML = `<p class="aviso erro">${esc(e.message)}</p>`; }
+  }
+
+  async function carregarAbrigos() {
+    const alvo = document.getElementById("lista-abrigos");
+    try {
+      const abrigos = await api("/abrigos");
+      alvo.innerHTML = abrigos.map((a) => `
+        <article class="card">
+          <h3 style="margin:0 0 4px;font-size:1.05rem">${esc(a.nome)}</h3>
+          <p class="ref">${esc(a.endereco)}</p>
+          <p class="tag">Cabem ${a.capacidade} pessoas · ${a.acessivel ? "Acessível para cadeira de rodas" : "Sem acessibilidade"}</p>
+        </article>`).join("");
+    } catch (e) { alvo.innerHTML = `<p class="aviso erro">${esc(e.message)}</p>`; }
+  }
+
+  function mostrar(tela) {
+    document.querySelectorAll("main > section").forEach((s) => { s.hidden = s.id !== "tela-" + tela; });
+    document.querySelectorAll("nav button").forEach((b) => b.toggleAttribute("aria-current", b.dataset.tela === tela));
+    document.querySelectorAll('nav button[aria-current]').forEach((b) => b.setAttribute("aria-current", "page"));
+    if (tela === "agora") carregarAgora();
+    if (tela === "alertas") carregarAlertas();
+    if (tela === "apoio") carregarAbrigos();
+  }
+
+  document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => mostrar(b.dataset.tela)));
+  document.querySelectorAll("#niveis button").forEach((b) => b.addEventListener("click", () => {
+    alturaEscolhida = Number(b.dataset.cm);
+    document.querySelectorAll("#niveis button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+
+  document.getElementById("form-relato").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const retorno = document.getElementById("retorno-relato");
+    if (alturaEscolhida === null) {
+      retorno.innerHTML = '<p class="aviso erro">Escolha a altura da água.</p>';
+      return;
+    }
+    try {
+      const corpo = {
+        idCidadao: Number(document.getElementById("cidadao").value),
+        idPonto: Number(document.getElementById("ponto").value),
+        alturaAguaCm: alturaEscolhida,
+        descricao: document.getElementById("descricao").value.trim() || null
+      };
+      const criada = await api("/ocorrencias", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
+      retorno.innerHTML = `<p class="aviso ok">Obrigado! Aviso nº ${criada.id} enviado. Um agente vai confirmar.</p>`;
+      ev.target.reset();
+      alturaEscolhida = null;
+      document.querySelectorAll("#niveis button").forEach((x) => x.setAttribute("aria-pressed", "false"));
+    } catch (e) {
+      retorno.innerHTML = `<p class="aviso erro">${esc(e.message)}</p>`;
+    }
+  });
+
+  carregarAgora();
+  carregarCidadaos();
+</script>
+</body>
+</html>
