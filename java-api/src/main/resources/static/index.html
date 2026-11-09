@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a2e4a">
 <title>RotaSeca - alagamentos no seu caminho</title>
+<meta name="description" content="RotaSeca: situacao dos pontos de alagamento, avisos dos moradores, alertas e pontos de apoio.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5c3.5 4.4 6 7.9 6 11a6 6 0 1 1-12 0c0-3.1 2.5-6.6 6-11Z' fill='%231b8fc4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root {
     --marinho: #0a2e4a; --azul: #0f4c75; --agua: #1b8fc4; --agua-clara: #e3f2fa;
@@ -63,7 +67,8 @@
 
   /* ---------- mapa ---------- */
   .mapa { padding: 0; overflow: hidden; }
-  .mapa svg { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #eaf4fa, #f6fafc); }
+  main > section:not(#tela-agora) { padding-top: 46px; }
+  .mapa > svg { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #eaf4fa, #f6fafc); }
   .mapa .ponto-mapa { cursor: pointer; }
   .mapa .ponto-mapa:hover circle.nucleo, .mapa .ponto-mapa:focus circle.nucleo { stroke-width: 3; }
   .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 14px; font-size: .78rem; color: var(--cinza); border-top: 1px solid var(--linha); }
@@ -154,9 +159,69 @@
   nav .badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
                background: var(--emergencia); color: #fff; font-size: .68rem; line-height: 18px; }
 
+  /* ---------- mapa real (Leaflet) ---------- */
+  .mapa .leaflet { height: 300px; width: 100%; background: #eaf4fa; z-index: 0; }
+  @media (max-width: 859px) { .mapa .leaflet { height: 240px; } }
+  .pin { display: block; width: 22px; height: 22px; border-radius: 50%; background: var(--cor); border: 3px solid #fff;
+         box-shadow: 0 2px 6px rgba(0,0,0,.35); position: relative; }
+  .pin.pulsa::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; background: var(--cor); opacity: .5;
+                      animation: onda 2s ease-out infinite; z-index: -1; }
+  @keyframes onda { to { transform: scale(2.6); opacity: 0; } }
+  .leaflet-tooltip.rotulo { background: rgba(255,255,255,.92); border: 0; box-shadow: 0 1px 4px rgba(0,0,0,.18); font: 600 11px/1.2 system-ui, sans-serif;
+                            color: var(--texto); padding: 3px 6px; border-radius: 6px; }
+  .leaflet-tooltip.rotulo::before { display: none; }
+  .leaflet-popup-content { font: 14px/1.4 system-ui, sans-serif; margin: 12px 14px; }
+  .leaflet-popup-content b { display: block; font-size: 15px; }
+  .leaflet-popup-content button { margin-top: 8px; border: 0; background: var(--azul); color: #fff; border-radius: 8px; padding: 6px 10px; font-weight: 600; cursor: pointer; }
+
+  /* ---------- erro de carregamento ---------- */
+  .falha { display: flex; gap: 14px; align-items: flex-start; }
+  .falha .icone { flex: 0 0 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 1.5rem; background: var(--emergencia-bg); }
+  .falha strong { display: block; font-size: 1.12rem; }
+  .falha p { margin: 4px 0 0; color: var(--cinza); font-size: .92rem; }
+  .falha code { display: block; margin-top: 8px; padding: 8px 10px; background: var(--fundo); border-radius: 8px; font-size: .8rem; color: #7a1a14; word-break: break-word; }
+  .falha button, .secundario { margin-top: 12px; border: 1px solid var(--azul); background: #fff; color: var(--azul); padding: 9px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+  .ao-vivo.off i { background: #ff8a80; animation: none; }
+
+  /* ---------- toast ---------- */
+  #toast { position: fixed; left: 50%; bottom: 92px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 1000;
+           background: var(--texto); color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: .92rem;
+           box-shadow: 0 8px 24px rgba(0,0,0,.25); transition: opacity .25s, transform .25s; max-width: calc(100vw - 28px); }
+  #toast.ver { opacity: 1; transform: translate(-50%, 0); }
+  #toast.erro { background: var(--emergencia); }
+
+  /* ---------- simulador de sensor ---------- */
+  input[type=range] { width: 100%; accent-color: var(--agua); height: 28px; }
+  .leitura-topo { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 14px; }
+  .leitura-topo .valor { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .leitura-topo .valor small { font-size: 1rem; font-weight: 600; color: var(--cinza); margin-left: 4px; }
+  .faixas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; font-size: .74rem; text-align: center; }
+  .faixas div { padding: 6px 4px; border-radius: 8px; background: var(--bg); color: var(--cor); font-weight: 700; }
+  .resultado { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--bg, var(--agua-clara)); border-left: 5px solid var(--cor, var(--agua)); }
+  .resultado strong { display: block; color: var(--cor, var(--azul)); font-size: 1.02rem; }
+  .resultado ul { margin: 8px 0 0; padding-left: 18px; font-size: .9rem; }
+  .resultado p { margin: 6px 0 0; font-size: .9rem; }
+  .tabela-leituras { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .tabela-leituras th { text-align: left; font-size: .74rem; text-transform: uppercase; letter-spacing: .3px; color: var(--cinza); padding: 0 6px 8px; }
+  .tabela-leituras td { padding: 9px 6px; border-top: 1px solid var(--linha); }
+  .tabela-leituras td:nth-child(2) { font-weight: 700; }
+
+  /* ---------- menu no topo em telas grandes ---------- */
+  @media (min-width: 860px) {
+    body { padding-top: 58px; }
+    nav { top: 0; bottom: auto; border-top: 0; border-bottom: 1px solid var(--linha); }
+    nav div { max-width: 960px; justify-content: center; gap: 4px; padding: 0 14px; }
+    nav button { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 17px 14px; font-size: .9rem; }
+    nav button svg { margin: 0; width: 20px; height: 20px; }
+    nav button[aria-current="page"]::before { top: auto; bottom: 0; left: 10px; right: 10px; border-radius: 3px 3px 0 0; }
+    nav .badge { top: 8px; left: auto; right: 2px; }
+    main { padding-bottom: 48px; }
+    #toast { bottom: 28px; }
+  }
+
   .skeleton { background: linear-gradient(90deg, #eef2f5 25%, #f7f9fb 50%, #eef2f5 75%); background-size: 200% 100%; animation: brilho 1.2s infinite; border-radius: 12px; height: 92px; margin-bottom: 12px; }
   @keyframes brilho { to { background-position: -200% 0; } }
-  @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
@@ -224,6 +289,28 @@
     <div id="lista-alertas"></div>
   </section>
 
+  <!-- ================= SENSOR (simulador) ================= -->
+  <section id="tela-sensor" aria-labelledby="t-sensor" hidden>
+    <h2 id="t-sensor">Simular sensor de n&iacute;vel</h2>
+    <p class="tag" style="margin-top:-6px">Envie uma medi&ccedil;&atilde;o como se fosse o sensor instalado na rua. A API classifica o n&iacute;vel,
+      emite ou encerra alertas e notifica os moradores do bairro.</p>
+    <div class="card">
+      <label for="sensor" style="margin-top:0">Sensor</label>
+      <select id="sensor"></select>
+      <div class="leitura-topo">
+        <label for="altura" style="margin:0">Altura da &aacute;gua</label>
+        <span class="selo" id="altura-previa"></span>
+      </div>
+      <div class="leitura-topo" style="margin:6px 0 4px"><span class="valor" id="altura-valor">0<small>cm</small></span></div>
+      <input type="range" id="altura" min="0" max="100" step="1" value="0">
+      <div class="faixas" id="faixas" aria-hidden="true"></div>
+      <button class="primario" type="button" id="enviar-leitura">Enviar leitura do sensor</button>
+      <div id="retorno-leitura" role="status" aria-live="polite"></div>
+    </div>
+    <h2>&Uacute;ltimas leituras deste sensor <small id="qtd-leituras"></small></h2>
+    <div class="card" id="lista-leituras"></div>
+  </section>
+
   <!-- ================= APOIO ================= -->
   <section id="tela-apoio" aria-labelledby="t-apoio" hidden>
     <h2 id="t-apoio">Pontos de apoio</h2>
@@ -239,9 +326,12 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Avisar</button>
   <button data-tela="alertas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg>Alertas<span class="badge" id="badge-alertas" hidden></span></button>
+  <button data-tela="sensor">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v10"/><circle cx="12" cy="16" r="4"/><path d="M5 8a9 9 0 0 1 2-3M19 8a9 9 0 0 0-2-3"/></svg>Sensor</button>
   <button data-tela="apoio">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Apoio</button>
 </div></nav>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
   const API = "/api";
@@ -280,6 +370,52 @@
   const nomeAltura = (cm) => cm <= 10 ? "Poça" : cm <= 30 ? "Canela" : cm <= 55 ? "Joelho" : "Acima do joelho";
   const iniciais = (n) => (n || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
 
+  let tempoToast;
+  function toast(msg, erro = false) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.className = "ver" + (erro ? " erro" : "");
+    clearTimeout(tempoToast);
+    tempoToast = setTimeout(() => { t.className = erro ? "erro" : ""; }, erro ? 6000 : 3200);
+  }
+
+  /* mesma regra do PontoRisco.classificar() na API */
+  function classificar(cm, atencao, critica) {
+    if (cm >= critica) return "EMERGENCIA";
+    if (cm >= (atencao + critica) / 2) return "ALERTA";
+    if (cm >= atencao) return "ATENCAO";
+    return "NORMAL";
+  }
+
+  /* Leaflet (mapa real) carregado sob demanda; sem internet, cai no mapa esquematico */
+  let leafletPronto = false;
+  (function carregarLeaflet() {
+    const s = document.createElement("script");
+    s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    s.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
+    s.crossOrigin = "";
+    s.onload = () => { leafletPronto = true; if (pontos.length) desenharMapa(); };
+    document.head.appendChild(s);
+  })();
+
+  function mostrarFalha(e) {
+    const [msg, ...det] = e.message.split(": ");
+    $("resumo").innerHTML = `<div class="falha">
+        <div class="icone" aria-hidden="true">⚠</div>
+        <div><strong>Não foi possível carregar os dados agora</strong>
+          <p>${esc(msg)}. A página tenta de novo sozinha a cada 30 segundos.</p>
+          ${det.length ? `<code>${esc(det.join(": "))}</code>` : ""}
+          <button type="button" id="tentar">Tentar novamente</button></div></div>`;
+    $("tentar").onclick = () => { $("resumo").innerHTML = '<div class="skeleton" style="height:120px;margin:0"></div>'; carregarAgora(); };
+    if (!pontos.length) {
+      $("lista-pontos").innerHTML = `<p class="card vazio">Sem dados dos pontos.</p>`;
+      $("lista-avisos").innerHTML = `<p class="card vazio">Sem dados dos avisos.</p>`;
+      $("mapa").hidden = true;
+    }
+    $("atualizado").textContent = "sem conexão";
+    $("atualizado").parentElement.classList.add("off");
+  }
+
   async function api(caminho, opcoes) {
     const resp = await fetch(API + caminho, opcoes);
     const corpo = resp.status === 204 ? null : await resp.json().catch(() => null);
@@ -301,8 +437,9 @@
       desenharAvisos();
       preencherFormulario();
       $("atualizado").textContent = "atualizado " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      $("atualizado").parentElement.classList.remove("off");
     } catch (e) {
-      $("resumo").innerHTML = `<p class="msg-retorno erro" style="margin:0">Não foi possível carregar: ${esc(e.message)}</p>`;
+      mostrarFalha(e);
     }
   }
 
@@ -330,8 +467,44 @@
     $("qtd-pontos").textContent = `${pontos.length} pontos`;
   }
 
+  const COR_MAPA = { NORMAL: "#1e7b34", ATENCAO: "#c9a100", ALERTA: "#d9730d", EMERGENCIA: "#b3261e", SEM_DADOS: "#8a97a2" };
+  let mapa = null, camada = null;
+
   function desenharMapa() {
     if (!pontos.length) { $("mapa").hidden = true; return; }
+    $("mapa").hidden = false;
+    if (!leafletPronto || !window.L) return desenharMapaEsquematico();
+    if (!mapa) {
+      $("mapa").innerHTML = `<div class="leaflet" id="mapa-real" role="region" aria-label="Mapa dos pontos monitorados"></div>
+        <div class="legenda">${Object.keys(COR_MAPA).map((s) => `<span><i style="background:${COR_MAPA[s]}"></i>${ROTULO[s]}</span>`).join("")}</div>`;
+      mapa = L.map("mapa-real", { scrollWheelZoom: false, zoomControl: true });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(mapa);
+      camada = L.layerGroup().addTo(mapa);
+      mapa.fitBounds(pontos.map((p) => [p.latitude, p.longitude]), { padding: [36, 36], maxZoom: 16 });
+    }
+    camada.clearLayers();
+    [...pontos].sort((a, b) => ordem[b.situacao] - ordem[a.situacao]).forEach((p) => {
+      const pulsa = p.situacao === "EMERGENCIA" || p.situacao === "ALERTA";
+      const icone = L.divIcon({ className: "", iconSize: [22, 22], iconAnchor: [11, 11],
+        html: `<span class="pin ${p.situacao}${pulsa ? " pulsa" : ""}"></span>` });
+      const m = L.marker([p.latitude, p.longitude], { icon: icone, title: `${p.nome}: ${ROTULO[p.situacao]}`, keyboard: true })
+        .bindTooltip(esc(p.nome), { permanent: true, direction: "top", offset: [0, -12], className: "rotulo" })
+        .bindPopup(`<b>${esc(p.nome)}</b>${ICONE[p.situacao]} ${ROTULO[p.situacao]}<br>
+          ${p.ultimaAlturaCm != null ? `Água: ${Math.round(p.ultimaAlturaCm)} cm (${haQuanto(p.dataUltimaLeitura)})` : "Sem medição de sensor"}<br>
+          <button type="button" data-ir="${p.idPonto}">Ver detalhes</button>`);
+      m.on("popupopen", (ev) => {
+        const b = ev.popup.getElement().querySelector("[data-ir]");
+        if (b) b.onclick = () => { mapa.closePopup(); focarPonto(p.idPonto); };
+      });
+      camada.addLayer(m);
+    });
+    setTimeout(() => mapa.invalidateSize(), 0);
+  }
+
+  function desenharMapaEsquematico() {
     const W = 600, H = 260, M = 36;
     const lats = pontos.map((p) => p.latitude), lons = pontos.map((p) => p.longitude);
     const [minLa, maxLa, minLo, maxLo] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
@@ -436,9 +609,11 @@
     botao.closest(".acoes").querySelectorAll("button").forEach((x) => x.disabled = true);
     try {
       await api(`/ocorrencias/${botao.dataset.id}/status?valor=${botao.dataset.st}`, { method: "PUT" });
+      toast({ CONFIRMADA: "Aviso confirmado. A situação do ponto foi reavaliada.", DESCARTADA: "Aviso descartado.",
+              RESOLVIDA: "Aviso marcado como resolvido." }[botao.dataset.st]);
       await carregarAgora();
     } catch (e) {
-      alert(e.message);
+      toast(e.message, true);
       botao.closest(".acoes").querySelectorAll("button").forEach((x) => x.disabled = false);
     }
   }
@@ -503,10 +678,127 @@
         <article class="card ponto ${a.nivel}">
           <div class="linha"><h3>${esc(nomes[a.idPonto] || "Ponto " + a.idPonto)}</h3><span class="selo">${ICONE[a.nivel]} ${ROTULO[a.nivel]}</span></div>
           <p class="dica">${esc(a.mensagem)}</p>
-          <p class="tag">Emitido ${haQuanto(a.dataEmissao)}</p>
+          <div class="linha" style="align-items:center">
+            <p class="tag" style="margin:0">Emitido ${haQuanto(a.dataEmissao)} · alerta nº ${a.id}</p>
+            <div class="acoes" style="margin:0"><button type="button" data-encerrar="${a.id}">Encerrar alerta</button></div>
+          </div>
         </article>`).join("") : `<p class="card vazio">✓ Nenhum alerta ativo agora.</p>`;
+      alvo.querySelectorAll("[data-encerrar]").forEach((b) => b.addEventListener("click", async () => {
+        b.disabled = true;
+        try {
+          await api(`/alertas/${b.dataset.encerrar}/encerrar`, { method: "PUT" });
+          toast("Alerta encerrado.");
+          pontos = await api("/pontos/situacao");
+          carregarAlertas();
+        } catch (e) { toast(e.message, true); b.disabled = false; }
+      }));
     } catch (e) { alvo.innerHTML = `<p class="msg-retorno erro">${esc(e.message)}</p>`; }
   }
+
+  /* ---------------- SENSOR (simulador) ---------------- */
+  let sensores = [];
+  const sensorAtual = () => sensores.find((s) => String(s.id) === $("sensor").value);
+  const pontoDoSensor = (s) => s && pontos.find((p) => p.idPonto === s.idPonto);
+
+  async function carregarSensor() {
+    try {
+      const [sens, sit] = await Promise.all([api("/sensores"), api("/pontos/situacao")]);
+      pontos = sit;
+      sensores = sens.filter((s) => s.tipo === "NIVEL");
+      const sel = $("sensor"), atual = sel.value;
+      sel.innerHTML = sensores.map((s) => {
+        const p = pontoDoSensor(s);
+        return `<option value="${s.id}" ${s.status !== "ATIVO" ? "disabled" : ""}>${esc(p ? p.nome : "Ponto " + s.idPonto)} · ${esc(s.codigoSerie)}${s.status !== "ATIVO" ? ` (${s.status.toLowerCase()})` : ""}</option>`;
+      }).join("");
+      if (atual && sensores.some((s) => String(s.id) === atual)) sel.value = atual;
+      else { const ativo = sensores.find((s) => s.status === "ATIVO"); if (ativo) sel.value = ativo.id; }
+      ajustarSensor();
+    } catch (e) { $("retorno-leitura").innerHTML = `<p class="msg-retorno erro">${esc(e.message)}</p>`; }
+  }
+
+  function ajustarSensor() {
+    const p = pontoDoSensor(sensorAtual());
+    if (!p) return;
+    const max = Math.ceil(p.cotaCriticaCm * 1.6 / 10) * 10;
+    $("altura").max = max;
+    const meio = Math.round((p.cotaAtencaoCm + p.cotaCriticaCm) / 2);
+    $("faixas").innerHTML = `
+      <div class="NORMAL">Normal<br>0–${p.cotaAtencaoCm - 1}</div>
+      <div class="ATENCAO">Atenção<br>${p.cotaAtencaoCm}–${meio - 1}</div>
+      <div class="ALERTA">Alerta<br>${meio}–${p.cotaCriticaCm - 1}</div>
+      <div class="EMERGENCIA">Intransitável<br>${p.cotaCriticaCm}+</div>`;
+    previaAltura();
+    carregarLeituras();
+  }
+
+  function previaAltura() {
+    const p = pontoDoSensor(sensorAtual());
+    const cm = Number($("altura").value);
+    const nivel = p ? classificar(cm, p.cotaAtencaoCm, p.cotaCriticaCm) : "NORMAL";
+    $("altura-valor").innerHTML = `${cm}<small>cm</small>`;
+    $("altura-valor").style.color = `var(--${{ NORMAL: "normal", ATENCAO: "atencao", ALERTA: "alerta", EMERGENCIA: "emergencia" }[nivel]})`;
+    const selo = $("altura-previa");
+    selo.className = "selo " + nivel;
+    selo.textContent = `${ICONE[nivel]} vai classificar como ${ROTULO[nivel]}`;
+  }
+
+  async function carregarLeituras() {
+    const s = sensorAtual(), p = pontoDoSensor(s);
+    if (!s) return;
+    try {
+      const leituras = (await api(`/leituras?idSensor=${s.id}`))
+        .sort((a, b) => new Date(b.dataLeitura) - new Date(a.dataLeitura) || b.id - a.id);
+      $("qtd-leituras").textContent = `${leituras.length} no total`;
+      $("lista-leituras").innerHTML = leituras.length ? `<table class="tabela-leituras">
+        <thead><tr><th>Quando</th><th>Água</th><th>Classificação</th></tr></thead><tbody>
+        ${leituras.slice(0, 8).map((l) => {
+          const n = p ? classificar(l.valor, p.cotaAtencaoCm, p.cotaCriticaCm) : "NORMAL";
+          const rel = haQuanto(l.dataLeitura);
+          return `<tr><td>${hora(l.dataLeitura)}${rel !== hora(l.dataLeitura) ? ` <span class="tag">· ${rel}</span>` : ""}</td><td>${Number(l.valor).toLocaleString("pt-BR")} cm</td>
+            <td><span class="selo ${n}">${ROTULO[n]}</span></td></tr>`;
+        }).join("")}</tbody></table>` : `<p class="vazio" style="margin:0">Nenhuma leitura deste sensor ainda.</p>`;
+    } catch (e) { $("lista-leituras").innerHTML = `<p class="msg-retorno erro" style="margin:0">${esc(e.message)}</p>`; }
+  }
+
+  async function enviarLeitura() {
+    const s = sensorAtual(), botao = $("enviar-leitura"), alvo = $("retorno-leitura");
+    if (!s) return;
+    botao.disabled = true;
+    try {
+      const r = await api("/leituras", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idSensor: s.id, valor: Number($("altura").value) }) });
+      const a = r.avaliacao, cm = r.leitura.valor;
+      let classe = "NORMAL", titulo, itens = [], extra = "";
+      if (!a) {
+        titulo = `Leitura nº ${r.leitura.id} gravada (${cm} cm). O ponto está desativado, então não houve avaliação.`;
+      } else if (!a.nivelCalculado) {
+        titulo = `✓ ${cm} cm: abaixo da cota de atenção`;
+        itens.push(a.alertasEncerrados ? `${a.alertasEncerrados} alerta(s) encerrado(s): a água baixou` : "Nenhum alerta ativo neste ponto");
+      } else if (a.alertaEmitido) {
+        classe = a.nivelCalculado;
+        titulo = `${ICONE[classe]} Novo alerta nº ${a.alertaEmitido.id}: ${ROTULO[classe]}`;
+        itens.push(`${a.notificacoesEnviadas} morador(es) do bairro notificado(s)`);
+        if (a.alertasEncerrados) itens.push(`${a.alertasEncerrados} alerta(s) anterior(es) encerrado(s)`);
+        extra = `<p>Mensagem enviada: “${esc(a.alertaEmitido.mensagem)}”</p>`;
+      } else {
+        classe = a.nivelCalculado;
+        titulo = `${ICONE[classe]} Nível ${ROTULO[classe]} mantido`;
+        itens.push("Já existe alerta igual ou mais grave ativo, então nenhuma mensagem repetida foi enviada");
+      }
+      alvo.innerHTML = `<div class="resultado ${classe}"><strong>${titulo}</strong>
+        ${itens.length ? `<ul>${itens.map((i) => `<li>${i}</li>`).join("")}</ul>` : ""}${extra}</div>`;
+      pontos = await api("/pontos/situacao");
+      const ativos = pontos.filter((p) => ["EMERGENCIA", "ALERTA", "ATENCAO"].includes(p.situacao)).length;
+      $("badge-alertas").hidden = !ativos; $("badge-alertas").textContent = ativos;
+      carregarLeituras();
+    } catch (e) {
+      alvo.innerHTML = `<p class="msg-retorno erro">${esc(e.message)}</p>`;
+    } finally { botao.disabled = false; }
+  }
+
+  $("sensor").addEventListener("change", () => { $("retorno-leitura").innerHTML = ""; ajustarSensor(); });
+  $("altura").addEventListener("input", previaAltura);
+  $("enviar-leitura").addEventListener("click", enviarLeitura);
 
   async function carregarAbrigos() {
     const alvo = $("lista-abrigos");
@@ -533,6 +825,7 @@
   let telaAtual = "agora";
   function mostrar(tela) {
     telaAtual = tela;
+    history.replaceState(null, "", tela === "agora" ? location.pathname : "#" + tela);
     document.querySelectorAll("main > section").forEach((s) => { s.hidden = s.id !== "tela-" + tela; });
     document.querySelectorAll("nav button").forEach((b) => {
       if (b.dataset.tela === tela) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
@@ -541,6 +834,8 @@
     if (tela === "agora") carregarAgora();
     if (tela === "alertas") carregarAlertas();
     if (tela === "apoio") carregarAbrigos();
+    if (tela === "sensor") carregarSensor();
+    if (tela === "agora" && mapa) setTimeout(() => mapa.invalidateSize(), 0);
   }
 
   document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => mostrar(b.dataset.tela)));
@@ -551,7 +846,8 @@
   }));
 
   desenharNiveis();
-  carregarAgora();
+  const telaInicial = location.hash.slice(1);
+  if (["relatar", "alertas", "sensor", "apoio"].includes(telaInicial)) { carregarAgora(); mostrar(telaInicial); } else carregarAgora();
   setInterval(() => { if (telaAtual === "agora" && !document.hidden) carregarAgora(); }, 30000);
 </script>
 </body>
