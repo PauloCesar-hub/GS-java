@@ -12,7 +12,8 @@
 | **Problema, em uma frase** | Em dias de chuva forte, os moradores só descobrem que a rua alagou quando já estão nela, sem saber qual caminho é seguro para casa, para o ônibus ou para um ponto de apoio. |
 | **Como funciona** | Sensores de nível d'água nos trechos que alagam e relatos dos moradores chegam a uma API. A API classifica cada ponto (atenção, alerta, emergência), emite alertas por rua e avisa os moradores do bairro pelo canal certo para cada perfil (WhatsApp para idosos). A página web mostra a situação das ruas e os pontos de apoio. Os modelos de dados preveem a altura da água e a chance de a rua fechar, e os algoritmos de grafo indicam a rota segura por perfil. |
 | **O que cada parte faz** | **Agile:** ideia, personas, casos de uso, backlog e protótipo · **Database Design:** modelo relacional Oracle e scripts DDL/DML/DQL · **DDD Java:** API REST Spring Boot + Oracle, regra de alerta e página web · **Data Science:** regressão linear (altura da água) e logística (rua intransitável) · **Dynamic Programming:** rota segura (Dijkstra/BFS), abrigo mais próximo (Floyd-Warshall) e plano de sensores (mochila com memoização e tabulação) |
-| **Link do repositório** | https://github.com/SEU-USUARIO/rotaseca *(atualizar)* |
+| **Link do repositório** | https://github.com/PauloCesar-hub/GS-java |
+| **Link do site no render** | https://gs-java-j78f.onrender.com |
 | **Indicador de impacto** | % de ruas intransitáveis avisadas **antes** · antecedência média do aviso (min) · moradores cadastrados por perfil · tempo entre relato e confirmação · pontos com monitoramento ativo |
 | **ODS conectados** | 11 (11.5), 13 (13.1), 10 (10.2), 3 (3.d), 9 (9.1) |
 
